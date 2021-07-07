@@ -9,7 +9,6 @@ const Chart = (props) => {
   let namesArr = [];
   let statsArr = [];
   const { innerWidth: width, innerHeight: height } = window;
-  // console.warn(width,height);
 
   const data = {
     labels: names,

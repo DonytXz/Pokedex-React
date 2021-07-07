@@ -5,8 +5,6 @@ const Logo = () => {
     <>
       <div className="w-full  p-10 flex flex-col">
         <img
-          //   width="500"
-          //   height="500"
           className="mx-auto mb-4"
           src="/src/assets/img/logo-pokemon.png"
           alt="Pokemon Logo"
