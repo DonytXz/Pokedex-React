@@ -11,18 +11,17 @@ const modal = (props) => {
   const { setCloseModal, pokemon } = props;
   const [types, setTypes] = useState([]);
   const [clickedBtn, setClickedBtn] = useState(false);
-  // const [stats, setStats] = useState([]);
   const [flag, setFlag] = useState();
   const [species, setSpecies] = useState();
   const getSpecies = async (query) => {
     const data = await fetchPokemonData(query);
     setSpecies(data);
   };
+  //On clcick to show the graph
   const assignValue = () => {
     setFlag(true);
   };
 
- 
   useEffect(() => {
     getSpecies(species);
     setTypes(pokemon.types);
@@ -33,14 +32,11 @@ const modal = (props) => {
   useEffect(() => {
     setSpecies(pokemon.species);
   }, [pokemon.species]);
-  // useEffect(() => {
-  //   setStats(pokemon.stats);
-  // }, [pokemon.stats]);
 
   useEffect(() => {
     if (species != undefined) getSpecies(species.url);
   }, [species]);
-  // console.log(stats);
+
   return (
     <>
       {pokemon ? (
@@ -90,12 +86,15 @@ const modal = (props) => {
               <Description species={species} />
             </div>
             <div className="w-full h-2/4">
-              <Stats clickedBtn={clickedBtn} pokemon={pokemon} /> 
+              <Stats clickedBtn={clickedBtn} pokemon={pokemon} />
             </div>
             <div className="w-full h-1/4 flex flex-row items-center justify-center">
               <div className="mx-2">Chart View</div>
               <div className="mx-2">
-                <ToggleBtn clickedBtn={clickedBtn} setClickedBtn={setClickedBtn} />
+                <ToggleBtn
+                  clickedBtn={clickedBtn}
+                  setClickedBtn={setClickedBtn}
+                />
               </div>
             </div>
           </div>

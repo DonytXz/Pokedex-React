@@ -1,29 +1,22 @@
 import Image from "./Image";
 import Swal from "sweetalert2";
 import React, { useState, useEffect } from "react";
-import {isGreater} from "../helpers/isGreater"
+import { isGreater } from "../helpers/isGreater";
 
 const PokemonItem = (props) => {
   const { pokemon, page, setPage, setHidden, setClickedPokemon } = props;
   const [flag, setFlag] = useState(true);
-  // const isGreater = (param) => {
-  //   if (param < 10) return "#00";
-  //   if (param < 100) {
-  //     return "#0";
-  //   } else {
-  //     return "#";
-  //   }
-  // };
+
+  //Set the clicket pokemon
   const assignValue = () => {
     setClickedPokemon(pokemon.name);
     setFlag(false);
   };
 
   useEffect(() => {
-    if(!flag) setHidden(flag);
+    if (!flag) setHidden(flag);
   }, [flag]);
 
-// console.log(pokemon)
   return (
     <>
       <div

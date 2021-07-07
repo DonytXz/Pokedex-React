@@ -10,17 +10,15 @@ const descriptions = (props) => {
 
   const findLangArr = (lang) => {
     let index;
-
+    //Fin the language to show this lang description
     if (descriptions != undefined) {
       descriptions.forEach((element, i) => {
         if (element.language.name === lang) {
           index = i;
-          // console.log(element.language.name," = ", lang, index)
         }
       });
     }
     if (index != undefined) setdescription(descriptions[index].flavor_text);
-    // if (index != undefined)  console.log(descriptions[index].flavor_text);
   };
   useEffect(() => {
     if (species != undefined) setdescriptions(species.flavor_text_entries);
@@ -31,8 +29,10 @@ const descriptions = (props) => {
   useEffect(() => {
     if (language != undefined) getdescriptions(language);
   }, [language]);
-  // console.log(description);
-  return <>{description && <div className="text-xl block">{description}</div>}</>;
+
+  return (
+    <>{description && <div className="text-xl block">{description}</div>}</>
+  );
 };
 
 export default descriptions;

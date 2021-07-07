@@ -14,6 +14,7 @@ const Home = () => {
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  //Call service to fetch the pokemon
   const getPokemon = async (query) => {
     const data = await fetchPokemon(query);
     if (pokemonModalVal) {
@@ -21,7 +22,6 @@ const Home = () => {
     } else {
       setPokemon(data);
     }
-    // console.log({ data });
     setLoading(false);
   };
   useEffect(() => {
@@ -47,7 +47,6 @@ const Home = () => {
       >
         <div className={`w-full h-full relative`}>
           <Logo />
-          {/* <Search setSearched={setSearched} getPokemon={getPokemon} /> */}
           <Search setSearched={setSearched} getPokemon={getPokemon} />
           {loading ? (
             <div className="flex w-screen h-full">

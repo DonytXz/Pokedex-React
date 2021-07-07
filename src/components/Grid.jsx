@@ -18,36 +18,38 @@ const Grid = (props) => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  //Handle the previusPage click
   const previusPage = () => {
-    // setHidden(false);
     const previusPage = Math.max(page - 1, 0);
     SetPage(previusPage);
   };
+  //Handle the nextPage click
   const nextPage = () => {
-    // setHidden(false);
     const nextPage = Math.min(page + 1, total - 1);
     setPage(nextPage);
   };
+  //Handle the firstPage click
   const firstPage = () => {
-    // setHidden(false);
     const firstPage = Math.min(0, total);
     setPage(firstPage);
   };
+  //Handle the secondPage click
   const secondPage = () => {
-    // setHidden(false);
     const secondPage = Math.min(1, total - 1);
     setPage(secondPage);
   };
+  //Handle the underLatsPage click
   const underLatsPage = () => {
-    // setHidden(false);
     const underLatsPage = Math.min(total - 1);
     setPage(underLatsPage);
   };
+  //Handle the lastPage click
   const lastPage = () => {
-    // setHidden(false);
     const LatsPage = Math.min(total);
     setPage(LatsPage);
   };
+
+  //Call the service to get all pokemons
   const getPokemons = async () => {
     try {
       setLoading(true);
@@ -62,26 +64,17 @@ const Grid = (props) => {
     } catch (err) {}
   };
 
-
   useEffect(() => {
     setcloseMdoal(hidden);
-  }, [pokemon, hidden, clickedPokemon]) 
+  }, [pokemon, hidden, clickedPokemon]);
   useEffect(() => {
     getPokemons();
     setPokemonModalVal(clickedPokemon);
     setSharedPageVal(page);
   }, [pokemon, page, hidden, clickedPokemon]);
-  // useEffect(() => {
-  //   getPokemons();
-  //   setcloseMdoal(hidden);
-  //   setPokemonModalVal(clickedPokemon);
-  //   setSharedPageVal(page);
-  // }, [pokemon, page, hidden, clickedPokemon]);
+
   return (
     <>
-      {/* <div className="w-full h-full">
-        <Modal hidden={hidden} />
-      </div> */}
       <div className="w-full h-full flex flex-col ">
         <div className="w-3/4 h-3/4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 md:gap-4 lg:gap-6 justify-items-center mx-auto mb-4">
           {!pokemon ? (

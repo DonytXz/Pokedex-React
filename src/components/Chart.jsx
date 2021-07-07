@@ -36,6 +36,7 @@ const Chart = (props) => {
       },
     },
   };
+  //Get the current view dimensions
   function getWindowDimensions() {
     return {
       width,
@@ -57,7 +58,7 @@ const Chart = (props) => {
 
   const getNames = () => {
     stats.forEach((element, index, arr) => {
-      // console.log(element)
+
       namesArr.push(element.stat.name);
       statsArr.push(element.base_stat);
     });
@@ -76,6 +77,7 @@ const Chart = (props) => {
         <Radar
           data={data}
           options={options}
+          //Set the current dimentons to the grap
           width={windowDimensions.width}
           height={windowDimensions.height}
           options={{ maintainAspectRatio: false }}

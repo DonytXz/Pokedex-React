@@ -2,49 +2,10 @@ import React, { useState, useEffect } from "react";
 
 const ToggleBtn = (props) => {
   const { setClickedBtn, clickedBtn } = props;
-  const [flag, setFlag] = useState(false);
-  // const assignValue = (flag) => {
-  //   if(flag){
-  //     setClickedBtn(true)
-  //   }else{
-  //     setClickedBtn(false)
-  //   }
-  // };
-  // const clickedFunction = () => {
-  //   assignValue(clickedBtn);
-  // }
-  console.log(clickedBtn);
-  // const assignValue = () => {
-  //   // if(clickedBtn !== undefined){
-  //   // clickedBtn === false ? setClickedBtn(true) : setClickedBtn(false);
 
-  //   // }
-
-  //   switch (clickedBtn) {
-  //     case false:
-  //       setFlag(true);
-  //       break;
-  //     case true:
-  //       setFlag(false);
-  //       break;
-  //     default:
-  //     // code block
-  //   }
-  //   // if (clickedBtn === false) {
-  //   //   setClickedBtn(false);
-  //   // }else  if (clickedBtn === false) {
-  //   //   setClickedBtn(true);
-  //   // }
-  // };
-  
-  // useEffect(() => {
-  //   if (flag !== undefined) setClickedBtn(flag);
-  // }, [flag]);
-  // console.log(clickedBtn);
-  
-    const assignValue = () => {
-      setClickedBtn(true)
-    }
+  const assignValue = () => {
+    setClickedBtn(true);
+  };
   return (
     <>
       <div
