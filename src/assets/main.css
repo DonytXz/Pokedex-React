@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bg-img {
+  background-image: url(../assets/img/pokepattern.jpg);
+}
+
+.capitalize h2{
+  text-transform: capitalize;
+}
+input:checked ~ .dot {
+  transform: translateX(100%);
+  background-color: greenyellow;
+}
+
+/* Toggle B */
+input:checked ~ .dot {
+  transform: translateX(100%);
+  background-color: greenyellow;
+}
