@@ -1,6 +1,6 @@
 # Pokedex
 
-_Simply poquedex using pokeapi. This proect is part of a test for qualifinds._
+_Simply poquedex using pokeapi._
 
 ### Instalation  🔧
 
