@@ -21,7 +21,7 @@ const Grid = (props) => {
   //Handle the previusPage click
   const previusPage = () => {
     const previusPage = Math.max(page - 1, 0);
-    SetPage(previusPage);
+    setPage(previusPage);
   };
   //Handle the nextPage click
   const nextPage = () => {
