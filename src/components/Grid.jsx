@@ -10,6 +10,8 @@ const Grid = (props) => {
     searched,
     setPokemonModalVal,
     setSharedPageVal,
+    isList,
+    // isGrid
   } = props;
   const [pokemons, setPokemons] = useState([]);
   const [clickedPokemon, setClickedPokemon] = useState();
@@ -76,7 +78,7 @@ const Grid = (props) => {
   return (
     <>
       <div className="w-full h-full flex flex-col ">
-        <div className="w-3/4 h-3/4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 md:gap-4 lg:gap-6 justify-items-center mx-auto mb-4">
+        <div className={`w-3/4 h-3/4 grid justify-items-center mx-auto mb-4 ${isList ? " grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 md:gap-4 lg:gap-6" : "grid-flow-row gap-y-4"}`}>
           {!pokemon ? (
             !loading ? (
               pokemons.map((pokemon, index) => {

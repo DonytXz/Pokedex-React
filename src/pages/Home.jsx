@@ -4,6 +4,7 @@ import Logo from "../components/Logo";
 import Search from "../components/Search";
 import { fetchPokemon } from "../services/getPokemon";
 import Modal from "../components/Modal";
+import Butons from "../components/Butons";
 
 const Home = () => {
   const [pokemon, setPokemon] = useState([]);
@@ -13,6 +14,8 @@ const Home = () => {
   const [pokemonModalVal, setPokemonModalVal] = useState();
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isList, setIslist] = useState(true);
+  const [isGrid, setIsGrid] = useState(false);
 
   //Call service to fetch the pokemon
   const getPokemon = async (query) => {
@@ -24,6 +27,8 @@ const Home = () => {
     }
     setLoading(false);
   };
+
+  // console.log(isList)
   useEffect(() => {
     getPokemon(pokemonModalVal);
   }, [pokemonModalVal, closeMdoal, searched, sharedPageVal]);
@@ -47,13 +52,24 @@ const Home = () => {
       >
         <div className={`w-full h-full relative`}>
           <Logo />
-          <Search setSearched={setSearched} getPokemon={getPokemon} />
+
+          <div className="w-3/4 flex flex-row mx-auto mb-4">
+            <Butons
+              isList={isList}
+              setIslist={setIslist}
+              setIsGrid={setIsGrid}
+            />
+            <Search setSearched={setSearched} getPokemon={getPokemon} />
+          </div>
+
           {loading ? (
             <div className="flex w-screen h-full">
               <p className="w-1/2 text-4xl font-bold">Loadding pokemons...</p>
             </div>
           ) : (
             <Grid
+              isList={isList}
+              // isGrid={isGrid}
               setSharedPageVal={setSharedPageVal}
               setPokemonModalVal={setPokemonModalVal}
               searched={searched}
