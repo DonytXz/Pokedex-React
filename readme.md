@@ -8,7 +8,7 @@ _npm install_
 
 _npm run start_
 
-#LIVE
+# LIVE
 _https://pokedex-b0ab4.web.app/_
 
 ### Made by: Donato Alvarez
