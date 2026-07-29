@@ -41,6 +41,7 @@ module.exports = {
       },
       {
         test: /\.(png|gif|jpg)$/,
+        type: "javascript/auto",
         use: [
           {
             loader: "file-loader",

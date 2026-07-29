@@ -5,6 +5,7 @@ import Search from "../components/Search";
 import { fetchPokemon } from "../services/getPokemon";
 import Modal from "../components/Modal";
 import Butons from "../components/Butons";
+import PokePattern from "../assets/img/pokepattern.jpg";
 
 const Home = () => {
   const [pokemon, setPokemon] = useState([]);
@@ -35,20 +36,29 @@ const Home = () => {
   return (
     <>
       {!closeMdoal && (
-        <div className="absolute w-full h-full z-50">
-          <Modal
-            loading={loading}
-            setCloseModal={setCloseModal}
-            pokemon={pokemonDetails}
-            closeMdoal={closeMdoal}
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black bg-opacity-40"
+            aria-hidden="true"
           />
+          <div className="relative w-full h-full">
+            <Modal
+              loading={loading}
+              setCloseModal={setCloseModal}
+              pokemon={pokemonDetails}
+              closeMdoal={closeMdoal}
+            />
+          </div>
         </div>
       )}
 
       <div
-        className={`w-full  oververflow-auto ${
-          closeMdoal ? "" : "absolute bg-green-600 opacity-40"
-        } `}
+        className="w-full min-h-screen overflow-auto"
+        style={{
+          backgroundColor: "#f8f8f8",
+          backgroundImage: `url(${PokePattern})`,
+          backgroundRepeat: "repeat",
+        }}
       >
         <div className={`w-full h-full relative`}>
           <Logo />
