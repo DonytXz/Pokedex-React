@@ -47,7 +47,7 @@
     "postcss": "^7.0.36",
     "postcss-cli": "^8.3.1",
     "postcss-loader": "^6.1.1",
-    "styles-loader": "^3.0.0",
+    "styles-loader": "^4.0.1",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.4",
     "ts-loader": "^9.2.3",
     "webpack": "^5.42.0",
