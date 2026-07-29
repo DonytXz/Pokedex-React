@@ -7,7 +7,7 @@ export const fetchPokemon = async (pokemon) => {
       return data;
     }
   } catch (err) {}
-};fetchPokemons
+};
 
 export const fetchPokemons = async (limit = 25, offset = 0) => {
   try {

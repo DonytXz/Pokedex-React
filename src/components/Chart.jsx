@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "chart.js/auto";
 import { Radar } from "react-chartjs-2";
 
 const Chart = (props) => {
@@ -25,13 +26,10 @@ const Chart = (props) => {
     ],
   };
   const options = {
-    type: "radar",
-    data: data,
-    options: {
-      elements: {
-        line: {
-          borderWidth: 3,
-        },
+    maintainAspectRatio: false,
+    elements: {
+      line: {
+        borderWidth: 3,
       },
     },
   };
@@ -79,7 +77,6 @@ const Chart = (props) => {
           //Set the current dimentons to the grap
           width={windowDimensions.width}
           height={windowDimensions.height}
-          options={{ maintainAspectRatio: false }}
         />
       </div>
     </>

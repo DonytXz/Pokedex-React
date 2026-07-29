@@ -1,4 +1,5 @@
 import React from "react";
+import PokemonLogo from "../assets/img/logo-pokemon.png";
 
 const Logo = () => {
   return (
@@ -6,7 +7,7 @@ const Logo = () => {
       <div className="w-full  p-10 flex flex-col">
         <img
           className="mx-auto mb-4"
-          src="/src/assets/img/logo-pokemon.png"
+          src={PokemonLogo}
           alt="Pokemon Logo"
         />
       </div>

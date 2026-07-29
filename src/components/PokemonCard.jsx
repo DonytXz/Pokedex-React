@@ -1,5 +1,4 @@
 import Image from "./Image";
-import Swal from "sweetalert2";
 import React, { useState, useEffect } from "react";
 import { isGreater } from "../helpers/isGreater";
 
