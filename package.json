@@ -35,7 +35,7 @@
     "@babel/plugin-transform-runtime": "^7.14.5",
     "@babel/preset-env": "^7.14.7",
     "@babel/preset-react": "^7.14.5",
-    "autoprefixer": "^9.8.6",
+    "autoprefixer": "^10.5.4",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.2.2",
     "babel-polyfill": "^6.26.0",
@@ -44,7 +44,7 @@
     "file-loader": "^6.2.0",
     "html-loader": "^2.1.2",
     "html-webpack-plugin": "^5.3.2",
-    "postcss": "^7.0.36",
+    "postcss": "^8.5.18",
     "postcss-cli": "^8.3.1",
     "postcss-loader": "^6.1.1",
     "styles-loader": "^4.0.1",
@@ -52,6 +52,6 @@
     "ts-loader": "^9.2.3",
     "webpack": "^5.42.0",
     "webpack-cli": "^4.7.2",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "^5.2.6"
   }
 }
