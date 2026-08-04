@@ -6,35 +6,40 @@ import Types from "./Types";
 import Description from "./Description";
 import Stats from "./Stats";
 import ToggleBtn from "./ToggleBtn";
-ToggleBtn;
-const modal = (props) => {
+
+const Modal = (props) => {
   const { setCloseModal, pokemon } = props;
   const [types, setTypes] = useState([]);
   const [clickedBtn, setClickedBtn] = useState(false);
-  const [flag, setFlag] = useState();
-  const [species, setSpecies] = useState();
+  const [species, setSpecies] = useState(null);
+  const [speciesData, setSpeciesData] = useState(null);
+
   const getSpecies = async (query) => {
-    const data = await fetchPokemonData(query);
-    setSpecies(data);
+    if (!query) return;
+    try {
+      const data = await fetchPokemonData(query);
+      setSpeciesData(data);
+    } catch (err) {
+      // swallow for now — component should not crash on fetch error
+      setSpeciesData(null);
+    }
   };
-  //On clcick to show the graph
-  const assignValue = () => {
-    setFlag(true);
+
+  const handleClose = () => {
+    if (typeof setCloseModal === "function") setCloseModal(true);
   };
 
   useEffect(() => {
-    getSpecies(species);
-    setTypes(pokemon.types);
+    if (pokemon) {
+      setTypes(pokemon.types || []);
+      setSpecies(pokemon.species);
+    }
   }, [pokemon]);
-  useEffect(() => {
-    if (flag) setCloseModal(flag);
-  }, [flag]);
-  useEffect(() => {
-    setSpecies(pokemon.species);
-  }, [pokemon.species]);
 
   useEffect(() => {
-    if (species != undefined) getSpecies(species.url);
+    if (species && species.url) {
+      getSpecies(species.url);
+    }
   }, [species]);
 
   return (
@@ -43,7 +48,7 @@ const modal = (props) => {
         <div className="w-full h-full flex items-center justify-center">
           <div className="w-10/12 md:w-2/3 lg:w-1/2 xl:w-1/3 p-8 h-3/4 flex flex-col bg-white relative border-2 border-white rounded-md opacity-100">
             <div
-              onClick={assignValue}
+              onClick={handleClose}
               className="hover:bg-gray-200 absolute bg-white text-center leading-6 w-6 h-6 p-1 box-content -top-5 -right-5 border-2 rounded-sm"
             >
               <p className="align-middle text-gray-600 font-bold ">X</p>
@@ -64,7 +69,7 @@ const modal = (props) => {
                 <h2 className="w-full font-sans  text-xl capitalize font-bold">
                   {pokemon.name}
                 </h2>
-                {types != undefined
+                {types && types.length
                   ? types.map((type, index) => {
                       return <Types key={index} type={type.type} />;
                     })
@@ -76,20 +81,19 @@ const modal = (props) => {
                   Height: <span className="font-normal">{pokemon.height}m</span>
                 </p>
                 <p className="w-full font-sans text-left text-xl capitalize font-bold">
-                  Weight:{" "}
+                  Weight: {" "}
                   <span className="font-normal">{pokemon.weight}kg</span>
                 </p>
               </div>
-              <Description />
             </div>
             <div className="w-full h-1/4  mb-2">
-              <Description species={species} />
+              <Description species={speciesData || species} />
             </div>
             <div className="w-full h-2/4">
               <Stats clickedBtn={clickedBtn} pokemon={pokemon} />
             </div>
             <div className="w-full h-1/4 flex flex-row items-center justify-center">
-              <div className="mx-2">Chart View</div>
+              <div className="mx-2">{!clickedBtn ? "Chart View" : "Radar View"}</div>
               <div className="mx-2">
                 <ToggleBtn
                   clickedBtn={clickedBtn}
@@ -100,10 +104,11 @@ const modal = (props) => {
           </div>
         </div>
       ) : (
-        <div>Loaging Data...</div>
+        <div>Loading Data...</div>
       )}
     </>
   );
 };
 
-export default modal;
+export default Modal;
+
