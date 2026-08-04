@@ -87,9 +87,9 @@ const Grid = (props) => {
     }
   }, [page, hidden, searched, setSharedPageVal]);
 
-  const hasSearchResult = searched && pokemon && !Array.isArray(pokemon) && pokemon.name;
+  const hasSearchResult = searched && Array.isArray(pokemon) && pokemon.length > 0;
   const isInitialLoad = loading && !searched && pokemons.length === 0;
-  const showSkeleton = (searched && searchLoading) || (loading && pokemons.length > 0);
+  const showSkeleton = (searched && searchLoading) || (loading && pokemons.length > 0 && !searched);
 
   return (
     <>
@@ -103,15 +103,23 @@ const Grid = (props) => {
             Array.from({ length: 18 }).map((_, index) => (
               <SkeletonCard key={index} />
             ))
-          ) : hasSearchResult ? (
-            <PokemonCard
-              setHidden={setHidden}
-              setClickedPokemon={setClickedPokemon}
-              key={pokemon.name}
-              page={page}
-              setPage={setPage}
-              pokemon={pokemon}
-            />
+          ) : searched ? (
+            hasSearchResult ? (
+              pokemon.map((pokemonItem, index) => (
+                <PokemonCard
+                  setHidden={setHidden}
+                  setClickedPokemon={setClickedPokemon}
+                  key={pokemonItem.name || index}
+                  page={page}
+                  setPage={setPage}
+                  pokemon={pokemonItem}
+                />
+              ))
+            ) : (
+              <div className="col-span-full w-full text-center py-10 text-gray-600">
+                No Pokemon found.
+              </div>
+            )
           ) : pokemons.length > 0 ? (
             pokemons.map((pokemonItem, index) => (
               <PokemonCard
@@ -123,10 +131,6 @@ const Grid = (props) => {
                 setClickedPokemon={setClickedPokemon}
               />
             ))
-          ) : searched ? (
-            <div className="col-span-full w-full text-center py-10 text-gray-600">
-              No Pokemon found.
-            </div>
           ) : null}
         </div>
         <div>

@@ -1,15 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import SearchImage from "../assets/icons/search.svg";
 
 const search = (props) => {
   const { getPokemon, setSearched } = props;
   const [searchValue, setSearchValue] = useState("");
+  const debounceRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
+
+  const triggerSearch = (query) => {
+    setSearched(query.length > 0);
+    getPokemon(query);
+  };
 
   const inputChange = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchValue(query);
-    setSearched(query.length > 0);
-    getPokemon(query);
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    if (query.length === 0) {
+      triggerSearch(query);
+      return;
+    }
+
+    debounceRef.current = setTimeout(() => {
+      triggerSearch(query);
+    }, 500);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+      triggerSearch(searchValue);
+    }
   };
 
   return (
@@ -22,6 +56,7 @@ const search = (props) => {
           <input
             value={searchValue}
             onChange={inputChange}
+            onKeyDown={handleKeyDown}
             className="w-full p-2 border-none"
             type="search"
             placeholder="Search by keywords"
