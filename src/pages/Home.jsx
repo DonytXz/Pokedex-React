@@ -9,30 +9,42 @@ import PokePattern from "../assets/img/pokepattern.jpg";
 
 const Home = () => {
   const [pokemon, setPokemon] = useState([]);
-  const [pokemonDetails, setPokemonDetails] = useState([]);
+  const [pokemonDetails, setPokemonDetails] = useState(null);
   const [sharedPageVal, setSharedPageVal] = useState();
   const [closeMdoal, setCloseModal] = useState(true);
   const [pokemonModalVal, setPokemonModalVal] = useState();
   const [searched, setSearched] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [isList, setIslist] = useState(true);
   const [isGrid, setIsGrid] = useState(false);
 
-  //Call service to fetch the pokemon
-  const getPokemon = async (query) => {
-    const data = await fetchPokemon(query);
-    if (pokemonModalVal) {
-      setPokemonDetails(data);
-    } else {
-      setPokemon(data);
+  const searchPokemon = async (query) => {
+    if (!query) {
+      setSearched(false);
+      setPokemon([]);
+      setSearchLoading(false);
+      return;
     }
-    setLoading(false);
+
+    setSearched(true);
+    setSearchLoading(true);
+    const data = await fetchPokemon(query);
+    setPokemon(data || null);
+    setSearchLoading(false);
   };
 
-  // console.log(isList)
+  const loadPokemonDetails = async (query) => {
+    if (!query) return;
+
+    setPokemonDetails(null);
+    const data = await fetchPokemon(query);
+    setPokemonDetails(data || null);
+  };
+
   useEffect(() => {
-    getPokemon(pokemonModalVal);
-  }, [pokemonModalVal, closeMdoal, searched, sharedPageVal]);
+    if (!pokemonModalVal) return;
+    loadPokemonDetails(pokemonModalVal);
+  }, [pokemonModalVal]);
   return (
     <>
       {!closeMdoal && (
@@ -43,7 +55,6 @@ const Home = () => {
           />
           <div className="relative w-full h-full">
             <Modal
-              loading={loading}
               setCloseModal={setCloseModal}
               pokemon={pokemonDetails}
               closeMdoal={closeMdoal}
@@ -69,24 +80,19 @@ const Home = () => {
               setIslist={setIslist}
               setIsGrid={setIsGrid}
             />
-            <Search setSearched={setSearched} getPokemon={getPokemon} />
+            <Search setSearched={setSearched} getPokemon={searchPokemon} />
           </div>
 
-          {loading ? (
-            <div className="flex w-screen h-full">
-              <p className="w-1/2 text-4xl font-bold">Loadding pokemons...</p>
-            </div>
-          ) : (
-            <Grid
-              isList={isList}
-              // isGrid={isGrid}
-              setSharedPageVal={setSharedPageVal}
-              setPokemonModalVal={setPokemonModalVal}
-              searched={searched}
-              setcloseMdoal={setCloseModal}
-              pokemon={pokemon}
-            />
-          )}
+          <Grid
+           isList={isList}
+           // isGrid={isGrid}
+           setSharedPageVal={setSharedPageVal}
+           setPokemonModalVal={setPokemonModalVal}
+           searched={searched}
+           searchLoading={searchLoading}
+           setcloseMdoal={setCloseModal}
+           pokemon={pokemon}
+          />
         </div>
       </div>
     </>

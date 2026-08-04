@@ -6,6 +6,7 @@ import Types from "./Types";
 import Description from "./Description";
 import Stats from "./Stats";
 import ToggleBtn from "./ToggleBtn";
+import PokeballLoader from "./loaders/PokeballLoader";
 
 const Modal = (props) => {
   const { setCloseModal, pokemon } = props;
@@ -104,7 +105,7 @@ const Modal = (props) => {
           </div>
         </div>
       ) : (
-        <div>Loading Data...</div>
+        <PokeballLoader />
       )}
     </>
   );
