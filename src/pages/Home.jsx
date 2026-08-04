@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Grid from "../components/Grid";
 import Logo from "../components/Logo";
 import Search from "../components/Search";
-import { fetchPokemon } from "../services/getPokemon";
+import { fetchPokemon, fetchAllPokemonNames, fetchPokemonData } from "../services/getPokemon";
 import Modal from "../components/Modal";
 import Butons from "../components/Butons";
 import PokePattern from "../assets/img/pokepattern.jpg";
@@ -17,8 +17,24 @@ const Home = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [isList, setIslist] = useState(true);
   const [isGrid, setIsGrid] = useState(false);
+  const [allPokemonList, setAllPokemonList] = useState([]);
+  const abortControllerRef = useRef(null);
+
+  useEffect(() => {
+    const loadAllPokemon = async () => {
+      const data = await fetchAllPokemonNames();
+      if (data && data.results) {
+        setAllPokemonList(data.results);
+      }
+    };
+    loadAllPokemon();
+  }, []);
 
   const searchPokemon = async (query) => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
     if (!query) {
       setSearched(false);
       setPokemon([]);
@@ -28,9 +44,31 @@ const Home = () => {
 
     setSearched(true);
     setSearchLoading(true);
-    const data = await fetchPokemon(query);
-    setPokemon(data || null);
-    setSearchLoading(false);
+
+    abortControllerRef.current = new AbortController();
+    const { signal } = abortControllerRef.current;
+
+    try {
+      const matches = allPokemonList.filter(p => {
+        const idMatch = p.url.match(/\/pokemon\/(\d+)\//);
+        const id = idMatch ? idMatch[1] : null;
+        return p.name.includes(query) || (id && id.includes(query));
+      });
+
+      const limitedMatches = matches.slice(0, 18);
+      const promises = limitedMatches.map(p => fetchPokemonData(p.url, signal));
+      const results = await Promise.all(promises);
+      
+      setPokemon(results.filter(Boolean));
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        setPokemon([]);
+      }
+    } finally {
+      if (!signal.aborted) {
+        setSearchLoading(false);
+      }
+    }
   };
 
   const loadPokemonDetails = async (query) => {
