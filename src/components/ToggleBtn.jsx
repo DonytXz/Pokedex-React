@@ -3,21 +3,21 @@ import React, { useState, useEffect } from "react";
 const ToggleBtn = (props) => {
   const { setClickedBtn, clickedBtn } = props;
 
-  const assignValue = () => {
-    setClickedBtn(true);
-  };
   return (
     <>
-      <div
-        onClick={assignValue}
-        className="flex items-center justify-center w-full mb-12 "
-      >
+      <div className="flex items-center justify-center w-full mb-12 ">
         <label
           htmlFor="toogleA"
           className="flex items-center cursor-pointer my-auto"
         >
           <div className="relative ">
-            <input id="toogleA" type="checkbox" className="sr-only" />
+            <input 
+              id="toogleA" 
+              type="checkbox" 
+              className="sr-only" 
+              checked={clickedBtn}
+              onChange={() => setClickedBtn(!clickedBtn)}
+            />
 
             <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
 
