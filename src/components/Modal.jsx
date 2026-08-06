@@ -47,7 +47,7 @@ const Modal = (props) => {
     <>
       {pokemon ? (
         <div className="w-full h-full flex items-center justify-center">
-          <div className="w-10/12 md:w-2/3 lg:w-1/2 xl:w-1/3 p-8 h-3/4 flex flex-col bg-white relative border-2 border-white rounded-md opacity-100">
+          <div className="w-10/12 md:w-2/3 lg:w-1/2 xl:w-1/3 p-8 h-3/4 flex flex-col bg-white relative border-2 border-white rounded-md opacity-100 pointer-events-auto">
             <div
               onClick={handleClose}
               className="hover:bg-gray-200 absolute bg-white text-center leading-6 w-6 h-6 p-1 box-content -top-5 -right-5 border-2 rounded-sm"

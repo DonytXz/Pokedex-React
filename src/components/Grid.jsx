@@ -18,7 +18,6 @@ const Grid = (props) => {
   } = props;
   const [pokemons, setPokemons] = useState([]);
   const [clickedPokemon, setClickedPokemon] = useState();
-  const [hidden, setHidden] = useState(true);
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -71,10 +70,6 @@ const Grid = (props) => {
   };
 
   useEffect(() => {
-    setcloseMdoal(hidden);
-  }, [hidden]);
-
-  useEffect(() => {
     if (clickedPokemon) {
       setPokemonModalVal(clickedPokemon);
     }
@@ -85,7 +80,7 @@ const Grid = (props) => {
       getPokemons();
       setSharedPageVal(page);
     }
-  }, [page, hidden, searched, setSharedPageVal]);
+  }, [page, searched, setSharedPageVal]);
 
   const hasSearchResult = searched && Array.isArray(pokemon) && pokemon.length > 0;
   const isInitialLoad = loading && !searched && pokemons.length === 0;
@@ -107,7 +102,8 @@ const Grid = (props) => {
             hasSearchResult ? (
               pokemon.map((pokemonItem, index) => (
                 <PokemonCard
-                  setHidden={setHidden}
+                  isList={isList}
+                  setcloseMdoal={setcloseMdoal}
                   setClickedPokemon={setClickedPokemon}
                   key={pokemonItem.name || index}
                   page={page}
@@ -123,7 +119,8 @@ const Grid = (props) => {
           ) : pokemons.length > 0 ? (
             pokemons.map((pokemonItem, index) => (
               <PokemonCard
-                setHidden={setHidden}
+                isList={isList}
+                setcloseMdoal={setcloseMdoal}
                 key={index}
                 page={page}
                 setPage={setPage}

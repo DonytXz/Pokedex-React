@@ -90,8 +90,9 @@ const Home = () => {
           <div
             className="absolute inset-0 bg-black bg-opacity-40"
             aria-hidden="true"
+            onClick={() => setCloseModal(true)}
           />
-          <div className="relative w-full h-full">
+          <div className="relative w-full h-full pointer-events-none">
             <Modal
               setCloseModal={setCloseModal}
               pokemon={pokemonDetails}
