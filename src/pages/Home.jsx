@@ -16,7 +16,6 @@ const Home = () => {
   const [searched, setSearched] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [isList, setIslist] = useState(true);
-  const [isGrid, setIsGrid] = useState(false);
   const [allPokemonList, setAllPokemonList] = useState([]);
   const abortControllerRef = useRef(null);
 
@@ -117,7 +116,6 @@ const Home = () => {
             <Butons
               isList={isList}
               setIslist={setIslist}
-              setIsGrid={setIsGrid}
             />
             <Search setSearched={setSearched} getPokemon={searchPokemon} />
           </div>
