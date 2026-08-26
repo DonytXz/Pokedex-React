@@ -15,10 +15,10 @@ const Butons = (props) => {
         onClick={toggleLayout}
         aria-label={isList ? "Switch to list view" : "Switch to grid view"}
         title={isList ? "Switch to list view" : "Switch to grid view"}
-        className="p-2 bg-green-600 border-2 border-transparent rounded-lg mr-2 lg:mr-4"
+        className="self-stretch px-3 bg-green-600 border-2 border-transparent rounded-lg mr-2 lg:mr-4 flex items-center justify-center"
       >
         <img
-          className="m-auto"
+          className="w-6 h-6 block"
           src={isList ? ListIcon : ColumnsIcon}
           alt={isList ? "List view" : "Grid view"}
         />
