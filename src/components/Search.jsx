@@ -48,7 +48,7 @@ const search = (props) => {
 
   return (
     <>
-      <div className="w-3/4 h-full mx-auto relative p-2 bg-white flex flex-row items-center border-1 border-t-2 shadow_top rounded-md shadow">
+      <div className="flex-1 h-full relative p-2 bg-white flex flex-row items-center border-1 border-t-2 shadow_top rounded-md shadow">
         <div className="w-1/12 h-full">
           <img className="mx-auto my-auto" src={SearchImage} alt="" />
         </div>
