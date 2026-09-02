@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, act } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import HorizontalBarChart from "./HorizontalBarChart";
 
@@ -24,6 +24,8 @@ describe("HorizontalBarChart Component", () => {
     expect(screen.getByTestId("mock-bar")).toBeInTheDocument();
     expect(capturedBarProps.data.labels).toEqual(["hp", "attack", "defense"]);
     expect(capturedBarProps.data.datasets[0].data).toEqual([35, 55, 40]);
+    expect(capturedBarProps.options.responsive).toBe(true);
+    expect(capturedBarProps.options.maintainAspectRatio).toBe(false);
   });
 
   it("handles undefined or empty stats array", () => {
@@ -31,21 +33,9 @@ describe("HorizontalBarChart Component", () => {
     expect(screen.getByTestId("mock-bar")).toBeInTheDocument();
   });
 
-  it("attaches resize listener and removes it on unmount", () => {
-    const addEventListenerSpy = vi.spyOn(window, "addEventListener");
-    const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
-
-    const { unmount } = render(<HorizontalBarChart stats={mockStats} />);
-
-    expect(addEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
-
-    act(() => {
-      window.innerWidth = 800;
-      window.innerHeight = 600;
-      window.dispatchEvent(new Event("resize"));
-    });
-
-    unmount();
-    expect(removeEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
+  it("handles null stats gracefully", () => {
+    render(<HorizontalBarChart stats={null} />);
+    expect(screen.getByTestId("mock-bar")).toBeInTheDocument();
   });
 });
+

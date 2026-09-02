@@ -137,4 +137,43 @@ test.describe("Pokémon Details Modal", () => {
     const overflowModalClosed = await page.evaluate(() => document.body.style.overflow);
     expect(overflowModalClosed).toBe("");
   });
+
+  test("ensures modal has no horizontal scroll and chart stays properly bounded across view toggle", async ({ page }) => {
+    await page.locator('button[aria-label*="View details for bulbasaur"]').click();
+    const modal = page.getByRole("dialog");
+    await expect(modal).toBeVisible();
+
+    // Verify modal has no horizontal scroll
+    const hasHorizontalScroll = await modal.evaluate((el) => el.scrollWidth > el.clientWidth);
+    expect(hasHorizontalScroll).toBe(false);
+
+    // Verify close button is fully contained within modal bounding box
+    const modalBox = await modal.boundingBox();
+    const closeBtn = page.getByRole("button", { name: /close pokémon details/i });
+    const btnBox = await closeBtn.boundingBox();
+
+    expect(btnBox.x).toBeGreaterThanOrEqual(modalBox.x);
+    expect(btnBox.x + btnBox.width).toBeLessThanOrEqual(modalBox.x + modalBox.width + 2);
+    expect(btnBox.y).toBeGreaterThanOrEqual(modalBox.y);
+
+    // Verify Bar Chart canvas is bounded within modal
+    const canvas = modal.locator("canvas");
+    await expect(canvas).toBeVisible();
+    let canvasBox = await canvas.boundingBox();
+    expect(canvasBox.width).toBeLessThanOrEqual(modalBox.width);
+    expect(canvasBox.height).toBeLessThan(350);
+
+    // Toggle to Radar View
+    await modal.locator('label[for="chart-toggle"]').click();
+    await expect(modal).toContainText("Radar View");
+
+    // Verify Radar View has no horizontal scroll and remains bounded
+    const hasHorizontalScrollRadar = await modal.evaluate((el) => el.scrollWidth > el.clientWidth);
+    expect(hasHorizontalScrollRadar).toBe(false);
+
+    canvasBox = await canvas.boundingBox();
+    expect(canvasBox.width).toBeLessThanOrEqual(modalBox.width);
+    expect(canvasBox.height).toBeLessThan(350);
+  });
 });
+

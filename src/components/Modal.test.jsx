@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import Modal from "./Modal";
 import * as pokemonService from "../services/getPokemon";
@@ -49,7 +49,9 @@ describe("Modal Component", () => {
       ],
     });
 
-    render(<Modal pokemon={mockPokemon} setCloseModal={vi.fn()} />);
+    await act(async () => {
+      render(<Modal pokemon={mockPokemon} setCloseModal={vi.fn()} />);
+    });
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "pikachu" })).toBeInTheDocument();
@@ -61,33 +63,45 @@ describe("Modal Component", () => {
   it("fetches species data and handles fetch errors gracefully", async () => {
     vi.spyOn(pokemonService, "fetchPokemonData").mockRejectedValue(new Error("Species not found"));
 
-    render(<Modal pokemon={mockPokemon} setCloseModal={vi.fn()} />);
+    await act(async () => {
+      render(<Modal pokemon={mockPokemon} setCloseModal={vi.fn()} />);
+    });
 
     await waitFor(() => {
       expect(screen.getByRole("dialog")).toBeInTheDocument();
     });
   });
 
-  it("calls setCloseModal(true) when close button is clicked", () => {
+  it("calls setCloseModal(true) when close button is clicked", async () => {
     const setCloseModalMock = vi.fn();
-    render(<Modal pokemon={mockPokemon} setCloseModal={setCloseModalMock} />);
+    await act(async () => {
+      render(<Modal pokemon={mockPokemon} setCloseModal={setCloseModalMock} />);
+    });
 
     const closeBtn = screen.getByRole("button", { name: "Close Pokémon details" });
-    fireEvent.click(closeBtn);
+    act(() => {
+      fireEvent.click(closeBtn);
+    });
 
     expect(setCloseModalMock).toHaveBeenCalledWith(true);
   });
 
-  it("closes modal on Escape key press", () => {
+  it("closes modal on Escape key press", async () => {
     const setCloseModalMock = vi.fn();
-    render(<Modal pokemon={mockPokemon} setCloseModal={setCloseModalMock} />);
+    await act(async () => {
+      render(<Modal pokemon={mockPokemon} setCloseModal={setCloseModalMock} />);
+    });
 
-    fireEvent.keyDown(window, { key: "Escape" });
+    act(() => {
+      fireEvent.keyDown(window, { key: "Escape" });
+    });
     expect(setCloseModalMock).toHaveBeenCalledWith(true);
   });
 
-  it("traps focus within the modal on Tab and Shift+Tab key presses", () => {
-    render(<Modal pokemon={mockPokemon} setCloseModal={vi.fn()} />);
+  it("traps focus within the modal on Tab and Shift+Tab key presses", async () => {
+    await act(async () => {
+      render(<Modal pokemon={mockPokemon} setCloseModal={vi.fn()} />);
+    });
 
     const closeBtn = screen.getByRole("button", { name: "Close Pokémon details" });
     const switchInput = screen.getByRole("switch");
@@ -96,21 +110,30 @@ describe("Modal Component", () => {
     expect(document.activeElement).toBe(closeBtn);
 
     // Shift+Tab on first focusable element loops to last focusable element
-    fireEvent.keyDown(window, { key: "Tab", shiftKey: true });
+    act(() => {
+      fireEvent.keyDown(window, { key: "Tab", shiftKey: true });
+    });
     expect(document.activeElement).toBe(switchInput);
 
     // Tab on last focusable element loops to first focusable element
-    fireEvent.keyDown(window, { key: "Tab", shiftKey: false });
+    act(() => {
+      fireEvent.keyDown(window, { key: "Tab", shiftKey: false });
+    });
     expect(document.activeElement).toBe(closeBtn);
   });
 
-  it("allows toggling between Bar chart and Radar chart view", () => {
-    render(<Modal pokemon={mockPokemon} setCloseModal={vi.fn()} />);
+  it("allows toggling between Bar chart and Radar chart view", async () => {
+    await act(async () => {
+      render(<Modal pokemon={mockPokemon} setCloseModal={vi.fn()} />);
+    });
 
     expect(screen.getByText("Chart View")).toBeInTheDocument();
     const switchInput = screen.getByRole("switch");
 
-    fireEvent.click(switchInput);
+    act(() => {
+      fireEvent.click(switchInput);
+    });
     expect(screen.getByText("Radar View")).toBeInTheDocument();
   });
 });
+

@@ -101,14 +101,14 @@ const Modal = (props) => {
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-pokemon-name"
-            className="w-11/12 md:w-2/3 lg:w-1/2 xl:w-1/3 p-6 md:p-8 max-h-[90vh] overflow-y-auto flex flex-col bg-white relative border-2 border-gray-100 shadow-2xl rounded-xl opacity-100 pointer-events-auto"
+            className="w-11/12 md:w-2/3 lg:w-1/2 xl:w-1/3 p-6 md:p-8 max-h-[90vh] overflow-y-auto overflow-x-hidden flex flex-col bg-white relative border-2 border-gray-100 shadow-2xl rounded-xl opacity-100 pointer-events-auto"
           >
             <button
               ref={closeButtonRef}
               type="button"
               onClick={handleClose}
               aria-label="Close Pokémon details"
-              className="hover:bg-gray-200 absolute bg-white text-center leading-6 w-8 h-8 p-1 box-content top-3 right-3 md:-top-3 md:-right-3 border-2 border-gray-300 rounded-full focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:outline-none flex items-center justify-center shadow-md cursor-pointer"
+              className="hover:bg-gray-200 absolute bg-white text-center leading-6 w-8 h-8 p-1 box-content top-4 right-4 border-2 border-gray-300 rounded-full focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:outline-none flex items-center justify-center shadow-md cursor-pointer z-10"
             >
               <span aria-hidden="true" className="text-gray-700 font-bold text-base leading-none">
                 ✕
@@ -152,10 +152,10 @@ const Modal = (props) => {
             <div className="w-full mb-4 text-gray-700">
               <Description species={speciesData || species} />
             </div>
-            <div className="w-full min-h-[220px] mb-4">
+            <div className="w-full h-60 sm:h-64 mb-4 relative">
               <Stats clickedBtn={clickedBtn} pokemon={pokemon} />
             </div>
-            <div className="w-full flex flex-row items-center justify-center text-sm font-medium text-gray-700">
+            <div className="w-full flex flex-row items-center justify-center text-sm font-medium text-gray-700 mt-auto">
               <span className="mx-2">{!clickedBtn ? "Chart View" : "Radar View"}</span>
               <div className="mx-2">
                 <ToggleBtn
