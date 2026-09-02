@@ -33,6 +33,13 @@ HTMLCanvasElement.prototype.getContext = () => ({
   clip: () => {},
 });
 
+// Mock offsetParent for JSDOM
+Object.defineProperty(HTMLElement.prototype, "offsetParent", {
+  get() {
+    return this.parentElement;
+  },
+});
+
 afterEach(() => {
   cleanup();
 });
