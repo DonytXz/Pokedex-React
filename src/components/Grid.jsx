@@ -87,66 +87,78 @@ const Grid = (props) => {
   const showSkeleton = (searched && searchLoading) || (loading && pokemons.length > 0 && !searched);
 
   return (
-    <>
-      <div className="w-full h-full flex flex-col ">
-        <div className={`w-3/4 h-3/4 grid justify-items-center mx-auto mb-4 ${isList ? " grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 md:gap-4 lg:gap-6" : "grid-flow-row gap-y-4"}`}>
-          {isInitialLoad ? (
-            <div className="col-span-full w-full">
-              <PokeballLoader />
-            </div>
-          ) : showSkeleton ? (
-            Array.from({ length: 18 }).map((_, index) => (
-              <SkeletonCard key={index} />
-            ))
-          ) : searched ? (
-            hasSearchResult ? (
-              pokemon.map((pokemonItem, index) => (
-                <PokemonCard
-                  isList={isList}
-                  setcloseMdoal={setcloseMdoal}
-                  setClickedPokemon={setClickedPokemon}
-                  key={pokemonItem.name || index}
-                  page={page}
-                  setPage={setPage}
-                  pokemon={pokemonItem}
-                />
-              ))
-            ) : (
-              <div className="col-span-full w-full text-center py-10 text-gray-600">
-                No Pokemon found.
-              </div>
-            )
-          ) : pokemons.length > 0 ? (
-            pokemons.map((pokemonItem, index) => (
+    <section
+      aria-label="Pokémon collection"
+      aria-busy={loading || searchLoading}
+      className="w-full h-full flex flex-col"
+    >
+      <div
+        className={`w-3/4 h-3/4 grid justify-items-center mx-auto mb-4 ${
+          isList
+            ? "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 md:gap-4 lg:gap-6"
+            : "grid-flow-row gap-y-4"
+        }`}
+      >
+        {isInitialLoad ? (
+          <div className="col-span-full w-full">
+            <PokeballLoader />
+          </div>
+        ) : showSkeleton ? (
+          Array.from({ length: 18 }).map((_, index) => (
+            <SkeletonCard key={index} />
+          ))
+        ) : searched ? (
+          hasSearchResult ? (
+            pokemon.map((pokemonItem, index) => (
               <PokemonCard
                 isList={isList}
                 setcloseMdoal={setcloseMdoal}
-                key={index}
+                setClickedPokemon={setClickedPokemon}
+                key={pokemonItem.name || index}
                 page={page}
                 setPage={setPage}
                 pokemon={pokemonItem}
-                setClickedPokemon={setClickedPokemon}
               />
             ))
-          ) : null}
-        </div>
-        <div>
-          {!searched && !loading ? (
-            <Pagination
-              searched={searched}
-              onLeftClick={previusPage}
-              onRightClick={nextPage}
-              firstPage={firstPage}
-              secondPage={secondPage}
-              underLatsPage={underLatsPage}
-              lastPage={lastPage}
+          ) : (
+            <div
+              role="status"
+              aria-live="polite"
+              className="col-span-full w-full text-center py-10 text-gray-700 text-lg font-medium"
+            >
+              No Pokémon found.
+            </div>
+          )
+        ) : pokemons.length > 0 ? (
+          pokemons.map((pokemonItem, index) => (
+            <PokemonCard
+              isList={isList}
+              setcloseMdoal={setcloseMdoal}
+              key={pokemonItem.name || index}
               page={page}
-              total={total}
+              setPage={setPage}
+              pokemon={pokemonItem}
+              setClickedPokemon={setClickedPokemon}
             />
-          ) : null}
-        </div>
+          ))
+        ) : null}
       </div>
-    </>
+      <div>
+        {!searched && !loading ? (
+          <Pagination
+            searched={searched}
+            onLeftClick={previusPage}
+            onRightClick={nextPage}
+            firstPage={firstPage}
+            secondPage={secondPage}
+            underLatsPage={underLatsPage}
+            lastPage={lastPage}
+            page={page}
+            total={total}
+          />
+        ) : null}
+      </div>
+    </section>
   );
 };
 

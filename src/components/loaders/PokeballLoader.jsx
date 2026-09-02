@@ -2,11 +2,16 @@ import React from "react";
 
 const PokeballLoader = () => {
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center min-h-[200px]">
+    <div
+      role="status"
+      aria-live="polite"
+      className="w-full h-full flex flex-col items-center justify-center min-h-[200px]"
+    >
       <svg
         className="w-16 h-16 animate-spin opacity-90"
         viewBox="0 0 100 100"
         xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
       >
         {/* Bottom half */}
         <path d="M 4,50 A 46,46 0 0,0 96,50 Z" fill="#f2f2f2" />
@@ -21,7 +26,7 @@ const PokeballLoader = () => {
         {/* Center inner circle */}
         <circle cx="50" cy="50" r="6" fill="#ffffff" stroke="#1a1a1a" strokeWidth="4" />
       </svg>
-      <p className="mt-4 text-xl font-bold text-gray-600">Loading...</p>
+      <p className="mt-4 text-xl font-bold text-gray-700">Loading Pokémon...</p>
     </div>
   );
 };

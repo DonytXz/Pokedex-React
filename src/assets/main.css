@@ -14,16 +14,30 @@ body,
   background-repeat: repeat;
 }
 
-.capitalize h2{
+.capitalize h2 {
   text-transform: capitalize;
 }
+
 input:checked ~ .dot {
   transform: translateX(100%);
-  background-color: greenyellow;
+  background-color: #16a34a;
 }
 
-/* Toggle B */
-input:checked ~ .dot {
-  transform: translateX(100%);
-  background-color: greenyellow;
+/* Accessible focus-visible styles across interactive elements */
+:focus-visible {
+  outline: 3px solid #16a34a;
+  outline-offset: 2px;
 }
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

@@ -3,16 +3,18 @@ import PokemonLogo from "../assets/img/logo-pokemon.png";
 
 const Logo = () => {
   return (
-    <>
-      <div className="w-full  p-10 flex flex-col">
+    <header className="w-full p-6 md:p-10 flex flex-col items-center">
+      <h1 className="flex flex-col items-center">
+        <span className="sr-only">Pokédex</span>
         <img
           className="mx-auto mb-4"
           src={PokemonLogo}
-          alt="Pokemon Logo"
+          alt="Pokémon"
         />
-      </div>
-    </>
+      </h1>
+    </header>
   );
 };
 
 export default Logo;
+
