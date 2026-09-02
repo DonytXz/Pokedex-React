@@ -68,18 +68,14 @@ const Chart = (props) => {
   }, [stats]);
 
   return (
-    <>
-      <div className="w-full h-full">
-        2
-        <Radar
-          data={data}
-          options={options}
-          //Set the current dimentons to the grap
-          width={windowDimensions.width}
-          height={windowDimensions.height}
-        />
-      </div>
-    </>
+    <div className="w-full h-full">
+      <Radar
+        data={data}
+        options={options}
+        width={windowDimensions.width}
+        height={windowDimensions.height}
+      />
+    </div>
   );
 };
 

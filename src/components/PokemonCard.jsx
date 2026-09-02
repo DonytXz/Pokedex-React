@@ -16,12 +16,14 @@ const PokemonItem = (props) => {
     <>
       {isList ? (
         // Grid View
-        <div
+        <button
+          type="button"
           onClick={assignValue}
-          className="w-full h-full bg-white capitalize p-4 border-6 border-white rounded-tl-2xl rounded-br-2xl cursor-pointer hover:shadow-lg transition-shadow"
+          aria-label={`View details for ${pokemon.name}, number ${isGreater(pokemon.id)}${pokemon.id}`}
+          className="w-full h-full bg-white capitalize p-4 border-6 border-white rounded-tl-2xl rounded-br-2xl cursor-pointer hover:shadow-lg transition-shadow text-left focus-visible:ring-4 focus-visible:ring-green-600 focus-visible:outline-none"
         >
           <div className="w-full h-2/3 p-2 mb-2 md:mb-4">
-            <Image path={pokemon.sprites} alt={pokemon.name} />
+            <Image path={pokemon.sprites} alt="" />
           </div>
           <div className="w-full h-1/3">
             <h2 className="font-sans text-center text-xl truncate font-bold">
@@ -32,15 +34,17 @@ const PokemonItem = (props) => {
               {pokemon.id}
             </p>
           </div>
-        </div>
+        </button>
       ) : (
         // List View
-        <div
+        <button
+          type="button"
           onClick={assignValue}
-          className="w-full bg-white capitalize p-4 border-6 border-white rounded-tl-2xl rounded-br-2xl cursor-pointer hover:shadow-lg transition-shadow flex flex-row items-center"
+          aria-label={`View details for ${pokemon.name}, number ${isGreater(pokemon.id)}${pokemon.id}`}
+          className="w-full bg-white capitalize p-4 border-6 border-white rounded-tl-2xl rounded-br-2xl cursor-pointer hover:shadow-lg transition-shadow flex flex-row items-center text-left focus-visible:ring-4 focus-visible:ring-green-600 focus-visible:outline-none"
         >
           <div className="w-1/4 h-24 p-2 flex-shrink-0">
-            <Image path={pokemon.sprites} alt={pokemon.name} className="h-full object-contain mx-auto" />
+            <Image path={pokemon.sprites} alt="" className="h-full object-contain mx-auto" />
           </div>
           <div className="w-1/3 flex flex-col justify-center px-4 border-r-2 border-gray-100">
             <p className="font-sans text-left text-gray-500 font-semibold">
@@ -67,7 +71,7 @@ const PokemonItem = (props) => {
               Weight: <span className="font-normal">{pokemon.weight}kg</span>
             </p>
           </div>
-        </div>
+        </button>
       )}
     </>
   );
