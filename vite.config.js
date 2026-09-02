@@ -5,8 +5,11 @@ export default defineConfig({
   base: "/Pokedex-React/",
   plugins: [react()],
   test: {
+    globals: true,
     environment: "jsdom",
     setupFiles: "./src/test/setup.js",
+    include: ["src/**/*.{test,spec}.{js,jsx}"],
+    exclude: ["**/node_modules/**", "**/dist/**", "e2e/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
