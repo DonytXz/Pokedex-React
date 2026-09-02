@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Grid from "../components/Grid";
 import Logo from "../components/Logo";
 import Search from "../components/Search";
@@ -91,20 +91,20 @@ const Home = () => {
     setPokemonDetails(data || null);
   };
 
-  const handleOpenModal = (val) => {
+  const handleOpenModal = useCallback((val) => {
     lastActiveElementRef.current = document.activeElement;
     setPokemonModalVal(val);
     setCloseModal(false);
-  };
+  }, []);
 
-  const handleCloseModal = (isClosed) => {
+  const handleCloseModal = useCallback((isClosed) => {
     setCloseModal(isClosed);
     if (isClosed && lastActiveElementRef.current) {
       setTimeout(() => {
         lastActiveElementRef.current?.focus();
       }, 50);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (!pokemonModalVal) return;
