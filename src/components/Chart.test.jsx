@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, act } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import Chart from "./Chart";
 
@@ -34,6 +34,8 @@ describe("Chart Component (Radar Chart)", () => {
       "speed",
     ]);
     expect(capturedRadarProps.data.datasets[0].data).toEqual([45, 49, 49, 65, 65, 45]);
+    expect(capturedRadarProps.options.responsive).toBe(true);
+    expect(capturedRadarProps.options.maintainAspectRatio).toBe(false);
   });
 
   it("handles undefined or empty stats gracefully", () => {
@@ -41,21 +43,9 @@ describe("Chart Component (Radar Chart)", () => {
     expect(screen.getByTestId("mock-radar")).toBeInTheDocument();
   });
 
-  it("updates window dimensions on resize and cleans up listener on unmount", () => {
-    const addEventListenerSpy = vi.spyOn(window, "addEventListener");
-    const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
-
-    const { unmount } = render(<Chart stats={mockStats} />);
-
-    expect(addEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
-
-    act(() => {
-      window.innerWidth = 1024;
-      window.innerHeight = 768;
-      window.dispatchEvent(new Event("resize"));
-    });
-
-    unmount();
-    expect(removeEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
+  it("handles null stats gracefully without crashing", () => {
+    render(<Chart stats={null} />);
+    expect(screen.getByTestId("mock-radar")).toBeInTheDocument();
   });
 });
+
