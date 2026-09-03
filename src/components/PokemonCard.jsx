@@ -4,7 +4,18 @@ import { isGreater } from "../helpers/isGreater";
 import Types from "./Types";
 
 const PokemonItem = (props) => {
-  const { pokemon, page, setPage, setcloseMdoal, setClickedPokemon, isList } = props;
+  const {
+    pokemon,
+    page,
+    setPage,
+    setcloseMdoal,
+    setClickedPokemon,
+    isList,
+    isFavorite,
+    onToggleFavorite,
+    isInTeam,
+    onToggleTeam,
+  } = props;
 
   //Set the clicket pokemon
   const assignValue = () => {
@@ -13,7 +24,7 @@ const PokemonItem = (props) => {
   };
 
   return (
-    <>
+    <div className="relative w-full h-full group">
       {isList ? (
         // Grid View
         <button
@@ -41,7 +52,7 @@ const PokemonItem = (props) => {
           type="button"
           onClick={assignValue}
           aria-label={`View details for ${pokemon.name}, number ${isGreater(pokemon.id)}${pokemon.id}`}
-          className="w-full bg-white capitalize p-4 border-6 border-white rounded-tl-2xl rounded-br-2xl cursor-pointer hover:shadow-lg transition-shadow flex flex-row items-center text-left focus-visible:ring-4 focus-visible:ring-green-600 focus-visible:outline-none"
+          className="w-full bg-white capitalize p-4 border-6 border-white rounded-tl-2xl rounded-br-2xl cursor-pointer hover:shadow-lg transition-shadow flex flex-row items-center text-left focus-visible:ring-4 focus-visible:ring-green-600 focus-visible:outline-none pr-20"
         >
           <div className="w-1/4 h-24 p-2 flex-shrink-0">
             <Image path={pokemon.sprites} alt="" className="h-full object-contain mx-auto" />
@@ -73,7 +84,56 @@ const PokemonItem = (props) => {
           </div>
         </button>
       )}
-    </>
+
+      {/* Quick Action Overlay (Favorite & Team) */}
+      {(onToggleTeam || onToggleFavorite) && (
+        <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
+          {onToggleTeam && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleTeam(pokemon);
+              }}
+              aria-label={
+                isInTeam
+                  ? `Remove ${pokemon.name} from battle team`
+                  : `Add ${pokemon.name} to battle team`
+              }
+              aria-pressed={isInTeam}
+              title={isInTeam ? "Remove from team" : "Add to team"}
+              className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shadow-sm transition hover:scale-110 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:outline-none ${
+                isInTeam
+                  ? "bg-green-600 text-white"
+                  : "bg-white/90 text-gray-600 hover:bg-white hover:text-gray-900 border border-gray-200"
+              }`}
+            >
+              {isInTeam ? "✓" : "+"}
+            </button>
+          )}
+
+          {onToggleFavorite && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite(pokemon);
+              }}
+              aria-label={
+                isFavorite
+                  ? `Remove ${pokemon.name} from favorites`
+                  : `Add ${pokemon.name} to favorites`
+              }
+              aria-pressed={isFavorite}
+              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+              className="w-7 h-7 rounded-full bg-white/90 hover:bg-white border border-gray-200 flex items-center justify-center text-xs shadow-sm transition hover:scale-110 focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:outline-none"
+            >
+              <span aria-hidden="true">{isFavorite ? "❤️" : "🤍"}</span>
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 

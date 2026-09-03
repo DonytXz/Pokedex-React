@@ -7,6 +7,10 @@ import {
   calculateBaseStatTotal,
   fetchMostPowerfulPokemons,
   clearCache,
+  fetchEvolutionChain,
+  fetchTypeData,
+  fetchTypePokemons,
+  calculateTypeMatchups,
 } from "./getPokemon";
 
 describe("getPokemon service", () => {
@@ -317,4 +321,87 @@ describe("getPokemon service", () => {
       expect(global.fetch).toHaveBeenCalledTimes(2);
     });
   });
+
+  describe("fetchEvolutionChain", () => {
+    it("fetches evolution chain given a url", async () => {
+      const mockChain = { id: 1, chain: { species: { name: "bulbasaur" } } };
+      global.fetch = vi.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue(mockChain),
+      });
+
+      const result = await fetchEvolutionChain("https://pokeapi.co/api/v2/evolution-chain/1/");
+      expect(result).toEqual(mockChain);
+    });
+
+    it("returns null when url is empty", async () => {
+      const result = await fetchEvolutionChain(null);
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("fetchTypeData & fetchTypePokemons", () => {
+    it("fetches type data by type name", async () => {
+      const mockType = { name: "fire", damage_relations: {} };
+      global.fetch = vi.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue(mockType),
+      });
+
+      const result = await fetchTypeData("fire");
+      expect(result).toEqual(mockType);
+    });
+
+    it("fetches pokemon list for a specific type", async () => {
+      const mockType = {
+        name: "fire",
+        pokemon: [
+          { pokemon: { name: "charmander", url: "https://pokeapi.co/api/v2/pokemon/4/" } },
+        ],
+      };
+      global.fetch = vi.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue(mockType),
+      });
+
+      const result = await fetchTypePokemons("fire");
+      expect(result).toEqual([
+        { name: "charmander", url: "https://pokeapi.co/api/v2/pokemon/4/" },
+      ]);
+    });
+  });
+
+  describe("calculateTypeMatchups", () => {
+    it("calculates defensive multipliers for single and dual types correctly", () => {
+      // Bulbasaur: Grass & Poison
+      const grassTypeData = {
+        name: "grass",
+        damage_relations: {
+          double_damage_from: [{ name: "fire" }, { name: "ice" }, { name: "flying" }, { name: "bug" }],
+          half_damage_from: [{ name: "water" }, { name: "electric" }, { name: "grass" }, { name: "ground" }],
+          no_damage_from: [],
+        },
+      };
+      const poisonTypeData = {
+        name: "poison",
+        damage_relations: {
+          double_damage_from: [{ name: "ground" }, { name: "psychic" }],
+          half_damage_from: [{ name: "grass" }, { name: "fighting" }, { name: "poison" }, { name: "bug" }, { name: "fairy" }],
+          no_damage_from: [],
+        },
+      };
+
+      const matchups = calculateTypeMatchups(
+        [{ type: { name: "grass" } }, { type: { name: "poison" } }],
+        [grassTypeData, poisonTypeData]
+      );
+
+      // Grass * Poison vs Ground: 0.5 * 2 = 1.0 (normal)
+      expect(matchups.multipliers.ground).toBe(1.0);
+      // Grass * Poison vs Grass: 0.5 * 0.5 = 0.25 (super resistant)
+      expect(matchups.resistances025x).toContain("grass");
+      // Grass * Poison vs Fire: 2 * 1 = 2 (weak)
+      expect(matchups.weaknesses2x).toContain("fire");
+      // Grass * Poison vs Bug: 2 * 0.5 = 1.0 (normal)
+      expect(matchups.normal1x).toContain("bug");
+    });
+  });
 });
+

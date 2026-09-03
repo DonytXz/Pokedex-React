@@ -92,4 +92,38 @@ describe("PokemonCard Component", () => {
 
     expect(setClickedPokemonMock).toHaveBeenCalledWith("bulbasaur");
   });
+
+  it("handles favorite button clicks", () => {
+    const onToggleFavoriteMock = vi.fn();
+
+    render(
+      <PokemonCard
+        pokemon={mockPokemon}
+        isList={true}
+        isFavorite={false}
+        onToggleFavorite={onToggleFavoriteMock}
+      />
+    );
+
+    const favBtn = screen.getByRole("button", { name: /add bulbasaur to favorites/i });
+    fireEvent.click(favBtn);
+    expect(onToggleFavoriteMock).toHaveBeenCalledWith(mockPokemon);
+  });
+
+  it("handles battle team button clicks", () => {
+    const onToggleTeamMock = vi.fn();
+
+    render(
+      <PokemonCard
+        pokemon={mockPokemon}
+        isList={true}
+        isInTeam={false}
+        onToggleTeam={onToggleTeamMock}
+      />
+    );
+
+    const teamBtn = screen.getByRole("button", { name: /add bulbasaur to battle team/i });
+    fireEvent.click(teamBtn);
+    expect(onToggleTeamMock).toHaveBeenCalledWith(mockPokemon);
+  });
 });

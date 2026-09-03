@@ -22,54 +22,74 @@ vi.mock("react-chartjs-2", () => ({
 }));
 
 // Mock services for testing
-vi.mock("../services/getPokemon", () => ({
-  fetchAllPokemonNames: vi.fn().mockResolvedValue({
-    results: [
-      { name: "bulbasaur", url: "https://pokeapi.co/api/v2/pokemon/1/" },
-      { name: "ivysaur", url: "https://pokeapi.co/api/v2/pokemon/2/" },
-    ],
-  }),
-  fetchPokemons: vi.fn().mockResolvedValue({
-    count: 36,
-    results: [
-      { name: "bulbasaur", url: "https://pokeapi.co/api/v2/pokemon/1/" },
-      { name: "ivysaur", url: "https://pokeapi.co/api/v2/pokemon/2/" },
-    ],
-  }),
-  fetchPokemonData: vi.fn().mockImplementation(async (url) => {
-    const isIvysaur = url && url.includes("/2/");
-    return {
-      id: isIvysaur ? 2 : 1,
-      name: isIvysaur ? "ivysaur" : "bulbasaur",
-      height: isIvysaur ? 10 : 7,
-      weight: isIvysaur ? 130 : 69,
-      sprites: { front_default: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${isIvysaur ? 2 : 1}.png` },
+vi.mock("../services/getPokemon", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    fetchAllPokemonNames: vi.fn().mockResolvedValue({
+      results: [
+        { name: "bulbasaur", url: "https://pokeapi.co/api/v2/pokemon/1/" },
+        { name: "ivysaur", url: "https://pokeapi.co/api/v2/pokemon/2/" },
+      ],
+    }),
+    fetchPokemons: vi.fn().mockResolvedValue({
+      count: 36,
+      results: [
+        { name: "bulbasaur", url: "https://pokeapi.co/api/v2/pokemon/1/" },
+        { name: "ivysaur", url: "https://pokeapi.co/api/v2/pokemon/2/" },
+      ],
+    }),
+    fetchPokemonData: vi.fn().mockImplementation(async (url) => {
+      const isIvysaur = url && url.includes("/2/");
+      return {
+        id: isIvysaur ? 2 : 1,
+        name: isIvysaur ? "ivysaur" : "bulbasaur",
+        height: isIvysaur ? 10 : 7,
+        weight: isIvysaur ? 130 : 69,
+        sprites: { front_default: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${isIvysaur ? 2 : 1}.png` },
+        types: [{ type: { name: "grass" } }, { type: { name: "poison" } }],
+        stats: [
+          { base_stat: 45, stat: { name: "hp" } },
+          { base_stat: 49, stat: { name: "attack" } },
+        ],
+        species: { url: `https://pokeapi.co/api/v2/pokemon-species/${isIvysaur ? 2 : 1}/` },
+      };
+    }),
+    fetchPokemon: vi.fn().mockResolvedValue({
+      id: 1,
+      name: "bulbasaur",
+      height: 7,
+      weight: 69,
+      sprites: { front_default: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" },
       types: [{ type: { name: "grass" } }, { type: { name: "poison" } }],
       stats: [
         { base_stat: 45, stat: { name: "hp" } },
         { base_stat: 49, stat: { name: "attack" } },
       ],
-      species: { url: `https://pokeapi.co/api/v2/pokemon-species/${isIvysaur ? 2 : 1}/` },
-    };
-  }),
-  fetchPokemon: vi.fn().mockResolvedValue({
-    id: 1,
-    name: "bulbasaur",
-    height: 7,
-    weight: 69,
-    sprites: { front_default: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" },
-    types: [{ type: { name: "grass" } }, { type: { name: "poison" } }],
-    stats: [
-      { base_stat: 45, stat: { name: "hp" } },
-      { base_stat: 49, stat: { name: "attack" } },
-    ],
-    species: {
-      flavor_text_entries: [
-        { flavor_text: "A strange seed was planted on its back.", language: { name: "en" } },
-      ],
-    },
-  }),
-}));
+      species: {
+        flavor_text_entries: [
+          { flavor_text: "A strange seed was planted on its back.", language: { name: "en" } },
+        ],
+      },
+    }),
+    fetchTypePokemons: vi.fn().mockResolvedValue([]),
+    fetchTypeData: vi.fn().mockResolvedValue({
+      name: "grass",
+      damage_relations: {
+        double_damage_from: [],
+        half_damage_from: [],
+        no_damage_from: [],
+      },
+    }),
+    fetchEvolutionChain: vi.fn().mockResolvedValue({
+      chain: {
+        species: { name: "bulbasaur", url: "https://pokeapi.co/api/v2/pokemon-species/1/" },
+        evolution_details: [],
+        evolves_to: [],
+      },
+    }),
+  };
+});
 
 const mockPokemon = {
   id: 1,
