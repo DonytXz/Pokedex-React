@@ -156,6 +156,106 @@ export const fetchMostPowerfulPokemons = async (pokemonList = [], limit = 10) =>
     return limit ? sorted.slice(0, limit) : sorted;
   } catch (err) {
     console.error(err);
+  }
+};
+
+export const fetchEvolutionChain = async (url) => {
+  if (!url) return null;
+  return fetchPokemonData(url);
+};
+
+export const fetchTypeData = async (typeName) => {
+  if (!typeName) return null;
+  const normalized = typeName.toLowerCase();
+  const url = `https://pokeapi.co/api/v2/type/${normalized}`;
+  return fetchPokemonData(url);
+};
+
+export const fetchTypePokemons = async (typeName) => {
+  try {
+    const data = await fetchTypeData(typeName);
+    if (!data || !Array.isArray(data.pokemon)) return [];
+    return data.pokemon.map((item) => item.pokemon);
+  } catch (err) {
+    console.error(`Error fetching Pokémon for type ${typeName}:`, err);
     return [];
   }
+};
+
+export const ALL_POKEMON_TYPES = [
+  "normal",
+  "fire",
+  "water",
+  "grass",
+  "electric",
+  "ice",
+  "fighting",
+  "poison",
+  "ground",
+  "flying",
+  "psychic",
+  "bug",
+  "rock",
+  "ghost",
+  "dragon",
+  "dark",
+  "steel",
+  "fairy",
+];
+
+export const calculateTypeMatchups = (pokemonTypes = [], typeDataList = []) => {
+  const multipliers = {};
+  ALL_POKEMON_TYPES.forEach((t) => {
+    multipliers[t] = 1.0;
+  });
+
+  typeDataList.forEach((td) => {
+    if (!td || !td.damage_relations) return;
+    const { double_damage_from, half_damage_from, no_damage_from } = td.damage_relations;
+
+    double_damage_from?.forEach((t) => {
+      if (multipliers[t.name] !== undefined) {
+        multipliers[t.name] *= 2.0;
+      }
+    });
+
+    half_damage_from?.forEach((t) => {
+      if (multipliers[t.name] !== undefined) {
+        multipliers[t.name] *= 0.5;
+      }
+    });
+
+    no_damage_from?.forEach((t) => {
+      if (multipliers[t.name] !== undefined) {
+        multipliers[t.name] *= 0.0;
+      }
+    });
+  });
+
+  const weaknesses4x = [];
+  const weaknesses2x = [];
+  const resistances05x = [];
+  const resistances025x = [];
+  const immunities0x = [];
+  const normal1x = [];
+
+  ALL_POKEMON_TYPES.forEach((typeName) => {
+    const m = multipliers[typeName];
+    if (m === 4) weaknesses4x.push(typeName);
+    else if (m === 2) weaknesses2x.push(typeName);
+    else if (m === 0.5) resistances05x.push(typeName);
+    else if (m === 0.25) resistances025x.push(typeName);
+    else if (m === 0) immunities0x.push(typeName);
+    else if (m === 1) normal1x.push(typeName);
+  });
+
+  return {
+    multipliers,
+    weaknesses4x,
+    weaknesses2x,
+    resistances05x,
+    resistances025x,
+    immunities0x,
+    normal1x,
+  };
 };

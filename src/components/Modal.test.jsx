@@ -135,5 +135,74 @@ describe("Modal Component", () => {
     });
     expect(screen.getByText("Radar View")).toBeInTheDocument();
   });
+
+  it("allows switching between Stats, Evolution Chain, and Type Matchups tabs", async () => {
+    await act(async () => {
+      render(<Modal pokemon={mockPokemon} setCloseModal={vi.fn()} />);
+    });
+
+    const statsTab = screen.getByRole("tab", { name: "Stats & About" });
+    const evoTab = screen.getByRole("tab", { name: "Evolution Chain" });
+    const matchupsTab = screen.getByRole("tab", { name: "Type Matchups" });
+
+    expect(statsTab).toHaveAttribute("aria-selected", "true");
+
+    act(() => {
+      fireEvent.click(evoTab);
+    });
+    expect(evoTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel", { name: "Evolution Chain" })).toBeInTheDocument();
+
+    act(() => {
+      fireEvent.click(matchupsTab);
+    });
+    expect(matchupsTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel", { name: "Type Matchups" })).toBeInTheDocument();
+  });
+
+  it("toggles shiny sprite view when shiny button is clicked", async () => {
+    await act(async () => {
+      render(<Modal pokemon={mockPokemon} setCloseModal={vi.fn()} />);
+    });
+
+    const shinyBtn = screen.getByRole("button", { name: /switch to shiny form/i });
+    expect(shinyBtn).toHaveAttribute("aria-pressed", "false");
+
+    act(() => {
+      fireEvent.click(shinyBtn);
+    });
+    expect(shinyBtn).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("Shiny Active")).toBeInTheDocument();
+  });
+
+  it("supports favorite and team actions inside modal", async () => {
+    const onToggleFavoriteMock = vi.fn();
+    const onToggleTeamMock = vi.fn();
+
+    await act(async () => {
+      render(
+        <Modal
+          pokemon={mockPokemon}
+          setCloseModal={vi.fn()}
+          isFavorite={false}
+          onToggleFavorite={onToggleFavoriteMock}
+          isInTeam={false}
+          onToggleTeam={onToggleTeamMock}
+        />
+      );
+    });
+
+    const favBtn = screen.getByRole("button", { name: /add pikachu to favorites/i });
+    act(() => {
+      fireEvent.click(favBtn);
+    });
+    expect(onToggleFavoriteMock).toHaveBeenCalledWith(mockPokemon);
+
+    const teamBtn = screen.getByRole("button", { name: /add pikachu to battle team/i });
+    act(() => {
+      fireEvent.click(teamBtn);
+    });
+    expect(onToggleTeamMock).toHaveBeenCalledWith(mockPokemon);
+  });
 });
 

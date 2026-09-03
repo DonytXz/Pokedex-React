@@ -14,6 +14,10 @@ const Grid = (props) => {
     setPokemonModalVal,
     setSharedPageVal,
     isList,
+    favorites = [],
+    onToggleFavorite,
+    team = [],
+    onToggleTeam,
     // isGrid
   } = props;
   const [pokemons, setPokemons] = useState([]);
@@ -86,6 +90,16 @@ const Grid = (props) => {
   const isInitialLoad = loading && !searched && pokemons.length === 0;
   const showSkeleton = (searched && searchLoading) || (loading && pokemons.length > 0 && !searched);
 
+  const isFav = (p) =>
+    favorites.some((fav) =>
+      typeof fav === "string"
+        ? fav.toLowerCase() === p?.name?.toLowerCase()
+        : fav?.id === p?.id || fav?.name === p?.name
+    );
+
+  const inTeam = (p) =>
+    team.some((t) => t?.id === p?.id || t?.name === p?.name);
+
   return (
     <section
       aria-label="Pokémon collection"
@@ -118,6 +132,10 @@ const Grid = (props) => {
                 page={page}
                 setPage={setPage}
                 pokemon={pokemonItem}
+                isFavorite={isFav(pokemonItem)}
+                onToggleFavorite={onToggleFavorite}
+                isInTeam={inTeam(pokemonItem)}
+                onToggleTeam={onToggleTeam}
               />
             ))
           ) : (
@@ -139,6 +157,10 @@ const Grid = (props) => {
               setPage={setPage}
               pokemon={pokemonItem}
               setClickedPokemon={setClickedPokemon}
+              isFavorite={isFav(pokemonItem)}
+              onToggleFavorite={onToggleFavorite}
+              isInTeam={inTeam(pokemonItem)}
+              onToggleTeam={onToggleTeam}
             />
           ))
         ) : null}

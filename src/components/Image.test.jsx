@@ -35,4 +35,20 @@ describe("Image Component", () => {
     expect(img).toHaveAttribute("src", "https://example.com/official_artwork.png");
     expect(img).toHaveClass("custom-img-class");
   });
+
+  it("renders shiny artwork when shiny prop is true", () => {
+    const mockPath = {
+      front_default: "https://example.com/normal.png",
+      other: {
+        "official-artwork": {
+          front_default: "https://example.com/normal.png",
+          front_shiny: "https://example.com/shiny.png",
+        },
+      },
+    };
+    render(<Image path={mockPath} alt="Charizard" shiny={true} />);
+
+    const img = screen.getByRole("img", { name: "Charizard" });
+    expect(img).toHaveAttribute("src", "https://example.com/shiny.png");
+  });
 });

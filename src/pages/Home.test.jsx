@@ -221,4 +221,116 @@ describe("Home Page Component", () => {
       screen.getByRole("button", { name: /switch to grid view/i })
     ).toBeInTheDocument();
   });
+
+  it("opens and closes the battle team builder dialog", async () => {
+    render(<Home />);
+
+    const teamBtn = screen.getByRole("button", { name: /open battle team/i });
+    expect(teamBtn).toBeInTheDocument();
+
+    fireEvent.click(teamBtn);
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog", { name: /battle team builder/i })).toBeInTheDocument();
+    });
+
+    const closeTeamBtn = screen.getByRole("button", { name: /close team builder/i });
+    fireEvent.click(closeTeamBtn);
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: /battle team builder/i })).toBeNull();
+    });
+  });
+
+  it("filters pokemon by generation region", async () => {
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "bulbasaur" })).toBeInTheDocument();
+    });
+
+    const genSelect = screen.getByLabelText(/region:/i);
+    fireEvent.change(genSelect, { target: { value: "1" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "bulbasaur" })).toBeInTheDocument();
+    });
+  });
+
+  it("filters pokemon by elemental type", async () => {
+    vi.spyOn(pokemonService, "fetchTypePokemons").mockResolvedValue([
+      { name: "charmander", url: "https://pokeapi.co/api/v2/pokemon/4/" },
+    ]);
+
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "bulbasaur" })).toBeInTheDocument();
+    });
+
+    const typeSelect = screen.getByLabelText(/type:/i);
+    fireEvent.change(typeSelect, { target: { value: "fire" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "charmander" })).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "bulbasaur" })).toBeNull();
+    });
+  });
+
+  it("toggles favorite state on pokemon card and filters by favorites", async () => {
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "bulbasaur" })).toBeInTheDocument();
+    });
+
+    const favBtn = screen.getByRole("button", { name: /add bulbasaur to favorites/i });
+    fireEvent.click(favBtn);
+
+    const favFilterBtn = screen.getByRole("button", { name: /show 1 favorite pokémon/i });
+    expect(favFilterBtn).toBeInTheDocument();
+
+    // Toggle favorites filter
+    fireEvent.click(favFilterBtn);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "bulbasaur" })).toBeInTheDocument();
+    });
+
+    // Reset filters
+    const clearBtn = screen.getByRole("button", { name: /reset all filters/i });
+    fireEvent.click(clearBtn);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "charmander" })).toBeInTheDocument();
+    });
+  });
+
+  it("toggles pokemon in battle team and manages team inside dialog", async () => {
+    window.alert = vi.fn();
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "bulbasaur" })).toBeInTheDocument();
+    });
+
+    const addTeamBtn = screen.getByRole("button", { name: /add bulbasaur to battle team/i });
+    fireEvent.click(addTeamBtn);
+
+    const teamLauncher = screen.getByRole("button", { name: /open battle team \(1 of 6 members\)/i });
+    expect(teamLauncher).toBeInTheDocument();
+
+    // Open Team Builder dialog
+    fireEvent.click(teamLauncher);
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog", { name: /battle team builder/i })).toBeInTheDocument();
+    });
+
+    // Remove member inside dialog
+    const removeMemberBtn = screen.getByRole("button", { name: /remove bulbasaur from team/i });
+    fireEvent.click(removeMemberBtn);
+
+    expect(screen.getByText(/0 \/ 6 Members/i)).toBeInTheDocument();
+  });
 });

@@ -2,10 +2,37 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Grid from "../components/Grid";
 import Logo from "../components/Logo";
 import Search from "../components/Search";
-import { fetchPokemon, fetchAllPokemonNames, fetchPokemonData } from "../services/getPokemon";
+import {
+  fetchPokemon,
+  fetchAllPokemonNames,
+  fetchPokemonData,
+  fetchTypePokemons,
+} from "../services/getPokemon";
 import Modal from "../components/Modal";
 import Butons from "../components/Butons";
+import Filters, { GENERATIONS } from "../components/Filters";
+import TeamBuilder from "../components/TeamBuilder";
 import PokePattern from "../assets/img/pokepattern.jpg";
+
+const getStoredItem = (key, fallback = []) => {
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : fallback;
+    }
+  } catch {
+    return fallback;
+  }
+  return fallback;
+};
+
+const setStoredItem = (key, data) => {
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      window.localStorage.setItem(key, JSON.stringify(data));
+    }
+  } catch {}
+};
 
 const Home = () => {
   const [pokemon, setPokemon] = useState([]);
@@ -18,6 +45,18 @@ const Home = () => {
   const [isList, setIslist] = useState(true);
   const [allPokemonList, setAllPokemonList] = useState([]);
   const [searchStatus, setSearchStatus] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filters state
+  const [selectedGen, setSelectedGen] = useState("all");
+  const [selectedType, setSelectedType] = useState("all");
+  const [isFavoritesOnly, setIsFavoritesOnly] = useState(false);
+
+  // Favorites & Team state
+  const [favorites, setFavorites] = useState(() => getStoredItem("pokedex:favorites", []));
+  const [team, setTeam] = useState(() => getStoredItem("pokedex:team", []));
+  const [isTeamOpen, setIsTeamOpen] = useState(false);
+
   const abortControllerRef = useRef(null);
   const lastActiveElementRef = useRef(null);
 
@@ -31,61 +70,220 @@ const Home = () => {
     loadAllPokemon();
   }, []);
 
-  const searchPokemon = async (query) => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    if (!query) {
-      setSearched(false);
-      setPokemon([]);
-      setSearchLoading(false);
-      setSearchStatus("");
-      return;
-    }
-
-    setSearched(true);
-    setSearchLoading(true);
-    setSearchStatus("Searching Pokémon...");
-
-    abortControllerRef.current = new AbortController();
-    const { signal } = abortControllerRef.current;
-
-    try {
-      const matches = allPokemonList.filter((p) => {
-        const idMatch = p.url.match(/\/pokemon\/(\d+)\//);
-        const id = idMatch ? idMatch[1] : null;
-        return p.name.includes(query) || (id && id.includes(query));
-      });
-
-      const limitedMatches = matches.slice(0, 18);
-      const promises = limitedMatches.map((p) =>
-        fetchPokemonData(p.url, signal)
+  const isFav = useCallback(
+    (p) => {
+      if (!p) return false;
+      return favorites.some((fav) =>
+        typeof fav === "string"
+          ? fav.toLowerCase() === p.name?.toLowerCase()
+          : fav?.id === p.id || fav?.name === p.name
       );
-      const results = await Promise.all(promises);
+    },
+    [favorites]
+  );
 
-      const filtered = results.filter(Boolean);
-      setPokemon(filtered);
-      setSearchStatus(
-        filtered.length > 0
-          ? `Found ${filtered.length} Pokémon matching search.`
-          : "No Pokémon found matching search."
+  const inTeam = useCallback(
+    (p) => {
+      if (!p) return false;
+      return team.some((t) => t?.id === p.id || t?.name === p.name);
+    },
+    [team]
+  );
+
+  const handleToggleFavorite = useCallback((p) => {
+    if (!p) return;
+    setFavorites((prev) => {
+      const exists = prev.some((f) =>
+        typeof f === "string"
+          ? f.toLowerCase() === p.name?.toLowerCase()
+          : f.id === p.id || f.name === p.name
       );
-    } catch (err) {
-      if (err.name !== "AbortError") {
+      const next = exists
+        ? prev.filter((f) =>
+            typeof f === "string"
+              ? f.toLowerCase() !== p.name?.toLowerCase()
+              : f.id !== p.id && f.name !== p.name
+          )
+        : [
+            ...prev,
+            {
+              id: p.id,
+              name: p.name,
+              sprites: p.sprites,
+              types: p.types,
+              stats: p.stats,
+            },
+          ];
+      setStoredItem("pokedex:favorites", next);
+      return next;
+    });
+  }, []);
+
+  const handleToggleTeam = useCallback((p) => {
+    if (!p) return;
+    setTeam((prev) => {
+      const exists = prev.some((t) => t.id === p.id || t.name === p.name);
+      if (exists) {
+        const next = prev.filter((t) => t.id !== p.id && t.name !== p.name);
+        setStoredItem("pokedex:team", next);
+        return next;
+      }
+
+      if (prev.length >= 6) {
+        alert("Battle team is full! Maximum 6 Pokémon allowed.");
+        return prev;
+      }
+
+      const next = [
+        ...prev,
+        {
+          id: p.id,
+          name: p.name,
+          sprites: p.sprites,
+          types: p.types,
+          stats: p.stats,
+        },
+      ];
+      setStoredItem("pokedex:team", next);
+      return next;
+    });
+  }, []);
+
+  const executeFilter = useCallback(
+    async (query, gen, type, favsOnly) => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      const isFilterActive =
+        (query && query.length > 0) ||
+        gen !== "all" ||
+        type !== "all" ||
+        favsOnly;
+
+      if (!isFilterActive) {
+        setSearched(false);
         setPokemon([]);
-        setSearchStatus("Error searching Pokémon.");
-      }
-    } finally {
-      if (!signal.aborted) {
         setSearchLoading(false);
+        setSearchStatus("");
+        return;
       }
-    }
+
+      setSearched(true);
+      setSearchLoading(true);
+      setSearchStatus("Searching Pokémon...");
+
+      abortControllerRef.current = new AbortController();
+      const { signal } = abortControllerRef.current;
+
+      try {
+        // 1. Initial Candidate List
+        let candidates = allPokemonList;
+
+        if (favsOnly) {
+          candidates = favorites.map((f) => {
+            if (typeof f === "string") {
+              const matched = allPokemonList.find((p) => p.name === f);
+              return matched || { name: f, url: "" };
+            }
+            return {
+              name: f.name,
+              url: `https://pokeapi.co/api/v2/pokemon/${f.id}/`,
+            };
+          });
+        }
+
+        // 2. Filter by Generation Range
+        if (gen !== "all") {
+          const genConfig = GENERATIONS.find((g) => g.id === gen);
+          if (genConfig) {
+            const [start, end] = genConfig.range;
+            candidates = candidates.filter((p) => {
+              const idMatch = p.url?.match(/\/pokemon(?:-species)?\/(\d+)\//);
+              if (!idMatch) return false;
+              const id = parseInt(idMatch[1], 10);
+              return id >= start && id <= end;
+            });
+          }
+        }
+
+        // 3. Filter by Elemental Type
+        if (type !== "all") {
+          const typePokemons = await fetchTypePokemons(type);
+          const typeNameSet = new Set(typePokemons.map((tp) => tp.name));
+          candidates = candidates.filter((p) => typeNameSet.has(p.name));
+        }
+
+        // 4. Filter by Search Query
+        if (query && query.length > 0) {
+          candidates = candidates.filter((p) => {
+            const idMatch = p.url?.match(/\/pokemon(?:-species)?\/(\d+)\//);
+            const id = idMatch ? idMatch[1] : null;
+            return p.name.includes(query) || (id && id.includes(query));
+          });
+        }
+
+        const limitedMatches = candidates.slice(0, 18);
+        const promises = limitedMatches.map((p) => {
+          if (p.url && p.url.startsWith("http")) {
+            return fetchPokemonData(p.url, signal);
+          }
+          return fetchPokemon(p.name);
+        });
+
+        const results = await Promise.all(promises);
+        const filtered = results.filter(Boolean);
+
+        setPokemon(filtered);
+        setSearchStatus(
+          filtered.length > 0
+            ? `Found ${filtered.length} Pokémon matching search.`
+            : "No Pokémon found matching search."
+        );
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          setPokemon([]);
+          setSearchStatus("Error searching Pokémon.");
+        }
+      } finally {
+        if (!signal.aborted) {
+          setSearchLoading(false);
+        }
+      }
+    },
+    [allPokemonList, favorites]
+  );
+
+  const searchPokemon = (query) => {
+    setSearchQuery(query);
+    executeFilter(query, selectedGen, selectedType, isFavoritesOnly);
+  };
+
+  const handleSelectGen = (gen) => {
+    setSelectedGen(gen);
+    executeFilter(searchQuery, gen, selectedType, isFavoritesOnly);
+  };
+
+  const handleSelectType = (type) => {
+    setSelectedType(type);
+    executeFilter(searchQuery, selectedGen, type, isFavoritesOnly);
+  };
+
+  const handleToggleFavoritesFilter = () => {
+    const next = !isFavoritesOnly;
+    setIsFavoritesOnly(next);
+    executeFilter(searchQuery, selectedGen, selectedType, next);
+  };
+
+  const handleResetFilters = () => {
+    setSelectedGen("all");
+    setSelectedType("all");
+    setIsFavoritesOnly(false);
+    executeFilter(searchQuery, "all", "all", false);
   };
 
   const loadPokemonDetails = async (query) => {
     if (!query) return;
-
     setPokemonDetails(null);
     const data = await fetchPokemon(query);
     setPokemonDetails(data || null);
@@ -113,14 +311,14 @@ const Home = () => {
 
   // Lock body scroll when modal is active
   useEffect(() => {
-    if (!closeModal) {
+    if (!closeModal || isTeamOpen) {
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = originalOverflow;
       };
     }
-  }, [closeModal]);
+  }, [closeModal, isTeamOpen]);
 
   return (
     <>
@@ -137,6 +335,28 @@ const Home = () => {
         {searchStatus}
       </div>
 
+      {/* Team Builder Modal */}
+      <TeamBuilder
+        team={team}
+        isOpen={isTeamOpen}
+        onClose={() => setIsTeamOpen(false)}
+        onRemoveMember={(idOrName) => {
+          setTeam((prev) => {
+            const next = prev.filter(
+              (t) => t.id !== idOrName && t.name !== idOrName
+            );
+            setStoredItem("pokedex:team", next);
+            return next;
+          });
+        }}
+        onClearTeam={() => {
+          setTeam([]);
+          setStoredItem("pokedex:team", []);
+        }}
+        onSelectPokemon={(name) => handleOpenModal(name)}
+      />
+
+      {/* Pokémon Details Modal */}
       {!closeModal && (
         <div className="fixed inset-0 z-50">
           <div
@@ -149,6 +369,11 @@ const Home = () => {
               setCloseModal={handleCloseModal}
               pokemon={pokemonDetails}
               closeMdoal={closeModal}
+              onSelectPokemon={handleOpenModal}
+              isFavorite={isFav(pokemonDetails)}
+              onToggleFavorite={handleToggleFavorite}
+              isInTeam={inTeam(pokemonDetails)}
+              onToggleTeam={handleToggleTeam}
             />
           </div>
         </div>
@@ -161,14 +386,40 @@ const Home = () => {
           backgroundImage: `url(${PokePattern})`,
           backgroundRepeat: "repeat",
         }}
-        aria-hidden={!closeModal ? "true" : undefined}
+        aria-hidden={!closeModal || isTeamOpen ? "true" : undefined}
       >
         <div className="w-full h-full relative">
           <Logo />
 
-          <div className="w-3/4 flex flex-row mx-auto mb-4 items-stretch">
-            <Butons isList={isList} setIslist={setIslist} />
-            <Search setSearched={setSearched} getPokemon={searchPokemon} />
+          <div className="w-3/4 flex flex-col mx-auto mb-4 gap-2.5">
+            <div className="w-full flex flex-row items-stretch gap-2">
+              <Butons isList={isList} setIslist={setIslist} />
+              <button
+                type="button"
+                onClick={() => setIsTeamOpen(true)}
+                aria-label={`Open Battle Team (${team.length} of 6 members)`}
+                title="View and manage your 6-member Pokémon team"
+                className="self-stretch px-3 md:px-4 bg-white border border-gray-300 hover:border-gray-400 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs md:text-sm text-gray-800 shadow-sm focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:outline-none transition hover:bg-gray-50"
+              >
+                <span aria-hidden="true" className="mr-1.5 text-sm">⚔️</span>
+                <span>Team ({team.length}/6)</span>
+              </button>
+              <Search setSearched={setSearched} getPokemon={searchPokemon} />
+            </div>
+
+            {/* Quick Filters */}
+            <div className="w-full bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-xl shadow-sm border border-gray-200">
+              <Filters
+                selectedGen={selectedGen}
+                onSelectGen={handleSelectGen}
+                selectedType={selectedType}
+                onSelectType={handleSelectType}
+                isFavoritesOnly={isFavoritesOnly}
+                onToggleFavorites={handleToggleFavoritesFilter}
+                favoritesCount={favorites.length}
+                onResetFilters={handleResetFilters}
+              />
+            </div>
           </div>
 
           <main id="main-content" tabIndex="-1" className="w-full focus:outline-none">
@@ -180,6 +431,10 @@ const Home = () => {
               searchLoading={searchLoading}
               setcloseMdoal={handleCloseModal}
               pokemon={pokemon}
+              favorites={favorites}
+              onToggleFavorite={handleToggleFavorite}
+              team={team}
+              onToggleTeam={handleToggleTeam}
             />
           </main>
         </div>
