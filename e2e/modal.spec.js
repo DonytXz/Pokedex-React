@@ -20,8 +20,8 @@ test.describe("Pokémon Details Modal", () => {
     // Check title, ID, types, height, weight
     await expect(page.locator("#modal-pokemon-name")).toHaveText("bulbasaur");
     await expect(modal).toContainText("#001");
-    await expect(modal).toContainText("Height: 7m");
-    await expect(modal).toContainText("Weight: 69kg");
+    await expect(modal).toContainText("Height: 0.7m");
+    await expect(modal).toContainText("Weight: 6.9kg");
     await expect(modal.locator("span", { hasText: "grass" })).toBeVisible();
     await expect(modal.locator("span", { hasText: "poison" })).toBeVisible();
 

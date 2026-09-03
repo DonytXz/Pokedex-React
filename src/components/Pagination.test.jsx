@@ -109,4 +109,11 @@ describe("Pagination Component", () => {
     expect(screen.getByRole("button", { name: "Page 2" })).toBeInTheDocument();
     expect(screen.queryByText("...")).toBeNull();
   });
+
+  it("renders active middle page button when page is between ends", () => {
+    render(<Pagination {...defaultProps} page={5} total={20} />);
+    const page6 = screen.getByRole("button", { name: "Page 6" });
+    expect(page6).toBeInTheDocument();
+    expect(page6).toHaveAttribute("aria-current", "page");
+  });
 });
