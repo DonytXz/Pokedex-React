@@ -1,38 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo } from "react";
 import { browserLang } from "../helpers/getLanguage";
-import { fetchPokemonData } from "../services/getPokemon";
 
-const descriptions = (props) => {
-  const { species } = props;
-  const [descriptions, setdescriptions] = useState([]);
-  const [description, setdescription] = useState([]);
-  const [language, setLanguage] = useState();
-
-  const findLangArr = (lang) => {
-    let index;
-    //Fin the language to show this lang description
-    if (descriptions != undefined) {
-      descriptions.forEach((element, i) => {
-        if (element.language.name === lang) {
-          index = i;
-        }
-      });
-    }
-    if (index != undefined) setdescription(descriptions[index].flavor_text);
-  };
-  useEffect(() => {
-    if (species != undefined) setdescriptions(species.flavor_text_entries);
-  }, [species]);
-  useEffect(() => {
-    findLangArr(browserLang);
-  }, [descriptions]);
-  useEffect(() => {
-    if (language != undefined) getdescriptions(language);
-  }, [language]);
-
-  return (
-    <>{description && <div className="text-xl block">{description}</div>}</>
-  );
+const sanitizeFlavorText = (text) => {
+  if (!text) return "";
+  return text.replace(/[\f\n\r\t]/g, " ").replace(/\s+/g, " ").trim();
 };
 
-export default descriptions;
+const Description = ({ species }) => {
+  const description = useMemo(() => {
+    if (!species?.flavor_text_entries?.length) return "";
+    const entries = species.flavor_text_entries;
+    const langMatch = entries.find((e) => e.language?.name === browserLang);
+    if (langMatch) return sanitizeFlavorText(langMatch.flavor_text);
+
+    const enMatch = entries.find((e) => e.language?.name === "en");
+    if (enMatch) return sanitizeFlavorText(enMatch.flavor_text);
+
+    return sanitizeFlavorText(entries[0]?.flavor_text || "");
+  }, [species]);
+
+  if (!description) return null;
+
+  return <div className="text-xl block leading-relaxed text-gray-700">{description}</div>;
+};
+
+export default Description;

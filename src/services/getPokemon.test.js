@@ -4,11 +4,15 @@ import {
   fetchPokemons,
   fetchAllPokemonNames,
   fetchPokemonData,
+  calculateBaseStatTotal,
+  fetchMostPowerfulPokemons,
+  clearCache,
 } from "./getPokemon";
 
 describe("getPokemon service", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    clearCache();
   });
 
   afterEach(() => {
@@ -146,6 +150,171 @@ describe("getPokemon service", () => {
       ).rejects.toThrow("Server unavailable");
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(networkError);
+    });
+  });
+
+  describe("calculateBaseStatTotal", () => {
+    it("sums up base stats correctly", () => {
+      const pokemon = {
+        stats: [
+          { base_stat: 100 },
+          { base_stat: 120 },
+          { base_stat: 90 },
+          { base_stat: 150 },
+          { base_stat: 90 },
+          { base_stat: 130 },
+        ],
+      };
+      expect(calculateBaseStatTotal(pokemon)).toBe(680);
+    });
+
+    it("returns 0 for null, undefined or invalid stats", () => {
+      expect(calculateBaseStatTotal(null)).toBe(0);
+      expect(calculateBaseStatTotal({})).toBe(0);
+      expect(calculateBaseStatTotal({ stats: null })).toBe(0);
+    });
+  });
+
+  describe("fetchMostPowerfulPokemons", () => {
+    it("sorts pokemon list by total base stats descending and limits output", async () => {
+      const mewtwoData = {
+        id: 150,
+        name: "mewtwo",
+        stats: [
+          { base_stat: 106 },
+          { base_stat: 110 },
+          { base_stat: 90 },
+          { base_stat: 154 },
+          { base_stat: 90 },
+          { base_stat: 130 },
+        ], // 680
+      };
+
+      const pikachuData = {
+        id: 25,
+        name: "pikachu",
+        stats: [
+          { base_stat: 35 },
+          { base_stat: 55 },
+          { base_stat: 40 },
+          { base_stat: 50 },
+          { base_stat: 50 },
+          { base_stat: 90 },
+        ], // 320
+      };
+
+      const rayquazaData = {
+        id: 384,
+        name: "rayquaza",
+        stats: [
+          { base_stat: 105 },
+          { base_stat: 150 },
+          { base_stat: 90 },
+          { base_stat: 150 },
+          { base_stat: 90 },
+          { base_stat: 95 },
+        ], // 680
+      };
+
+      global.fetch = vi.fn().mockImplementation((url) => {
+        if (url.includes("mewtwo")) {
+          return Promise.resolve({ json: () => Promise.resolve(mewtwoData) });
+        }
+        if (url.includes("pikachu")) {
+          return Promise.resolve({ json: () => Promise.resolve(pikachuData) });
+        }
+        if (url.includes("rayquaza") || url.includes("384")) {
+          return Promise.resolve({ json: () => Promise.resolve(rayquazaData) });
+        }
+        return Promise.resolve({ json: () => Promise.resolve(null) });
+      });
+
+      const result = await fetchMostPowerfulPokemons(
+        [
+          "pikachu",
+          { name: "mewtwo" },
+          { url: "https://pokeapi.co/api/v2/pokemon/384/" },
+          null,
+        ],
+        2
+      );
+
+      expect(result).toHaveLength(2);
+      expect(result[0].totalStats).toBe(680);
+      expect(result[1].totalStats).toBe(680);
+    });
+
+    it("returns empty array when pokemonList is empty or invalid", async () => {
+      expect(await fetchMostPowerfulPokemons([])).toEqual([]);
+      expect(await fetchMostPowerfulPokemons(null)).toEqual([]);
+    });
+
+    it("handles fetch errors gracefully and returns empty array", async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error("Network failure"));
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      const result = await fetchMostPowerfulPokemons(["mewtwo"]);
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("caching behavior", () => {
+    it("returns cached data on subsequent fetchPokemon calls without calling fetch again", async () => {
+      const mockData = { id: 25, name: "pikachu" };
+      global.fetch = vi.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue(mockData),
+      });
+
+      const firstResult = await fetchPokemon("pikachu");
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(firstResult).toEqual(mockData);
+
+      const secondResult = await fetchPokemon("pikachu");
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(secondResult).toEqual(mockData);
+    });
+
+    it("returns cached data on subsequent fetchPokemons calls", async () => {
+      const mockData = { count: 10, results: [{ name: "pikachu" }] };
+      global.fetch = vi.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue(mockData),
+      });
+
+      await fetchPokemons(18, 0);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+
+      const cached = await fetchPokemons(18, 0);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(cached).toEqual(mockData);
+    });
+
+    it("returns cached data on subsequent fetchPokemonData calls", async () => {
+      const mockData = { id: 1, name: "bulbasaur" };
+      global.fetch = vi.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue(mockData),
+      });
+
+      await fetchPokemonData("https://pokeapi.co/api/v2/pokemon/1/");
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+
+      const cached = await fetchPokemonData("https://pokeapi.co/api/v2/pokemon/1/");
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(cached).toEqual(mockData);
+    });
+
+    it("re-fetches after clearCache is called", async () => {
+      const mockData = { id: 7, name: "squirtle" };
+      global.fetch = vi.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue(mockData),
+      });
+
+      await fetchPokemon("squirtle");
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+
+      clearCache();
+
+      await fetchPokemon("squirtle");
+      expect(global.fetch).toHaveBeenCalledTimes(2);
     });
   });
 });

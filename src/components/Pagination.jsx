@@ -60,7 +60,27 @@ const Pagination = (props) => {
           </button>
         )}
 
-        {total > 4 && (
+        {page > 2 && (
+          <span
+            aria-hidden="true"
+            className="w-8 h-10 md:w-10 md:h-12 flex justify-center items-center text-gray-500"
+          >
+            ...
+          </span>
+        )}
+
+        {page > 1 && page < total - 2 && (
+          <button
+            type="button"
+            aria-label={`Page ${page + 1}`}
+            aria-current="page"
+            className="w-10 h-10 md:w-12 md:h-12 flex justify-center items-center rounded-md border transition duration-150 ease-in focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:outline-none bg-green-600 text-white font-bold border-green-600"
+          >
+            {page + 1}
+          </button>
+        )}
+
+        {(page < total - 3 || page <= 2) && total > 4 && (
           <span
             aria-hidden="true"
             className="w-8 h-10 md:w-10 md:h-12 flex justify-center items-center text-gray-500"

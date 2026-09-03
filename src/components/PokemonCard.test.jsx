@@ -52,8 +52,8 @@ describe("PokemonCard Component", () => {
     expect(screen.getByRole("heading", { name: "bulbasaur" })).toBeInTheDocument();
     expect(screen.getByText("grass")).toBeInTheDocument();
     expect(screen.getByText("poison")).toBeInTheDocument();
-    expect(screen.getByText("7m")).toBeInTheDocument();
-    expect(screen.getByText("69kg")).toBeInTheDocument();
+    expect(screen.getByText("0.7m")).toBeInTheDocument();
+    expect(screen.getByText("6.9kg")).toBeInTheDocument();
   });
 
   it("invokes setClickedPokemon and setcloseMdoal when clicked", () => {

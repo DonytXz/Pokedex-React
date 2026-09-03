@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
@@ -264,7 +264,10 @@ describe("Accessibility (a11y) & AXE Verification", () => {
 
   describe("Home Page Landmark & a11y Structure", () => {
     it("includes skip navigation link, main landmark, and passes AXE audit", async () => {
-      const { container } = render(<Home />);
+      let renderResult;
+      await act(async () => {
+        renderResult = render(<Home />);
+      });
 
       const skipLink = screen.getByRole("link", {
         name: /skip to main content/i,
@@ -273,7 +276,7 @@ describe("Accessibility (a11y) & AXE Verification", () => {
       expect(skipLink).toHaveAttribute("href", "#main-content");
 
       expect(screen.getByRole("main")).toBeInTheDocument();
-      expect(await axe(container)).toHaveNoViolations();
+      expect(await axe(renderResult.container)).toHaveNoViolations();
     });
   });
 });

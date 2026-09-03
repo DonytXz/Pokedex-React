@@ -142,10 +142,10 @@ const Modal = (props) => {
 
               <div className="w-1/3 flex flex-col items-center justify-start">
                 <p className="w-full font-sans text-left text-base md:text-lg capitalize font-bold text-gray-800">
-                  Height: <span className="font-normal">{pokemon.height}m</span>
+                  Height: <span className="font-normal">{pokemon.height != null ? `${(pokemon.height / 10).toFixed(1)}m` : "--"}</span>
                 </p>
                 <p className="w-full font-sans text-left text-base md:text-lg capitalize font-bold text-gray-800">
-                  Weight: <span className="font-normal">{pokemon.weight}kg</span>
+                  Weight: <span className="font-normal">{pokemon.weight != null ? `${(pokemon.weight / 10).toFixed(1)}kg` : "--"}</span>
                 </p>
               </div>
             </div>

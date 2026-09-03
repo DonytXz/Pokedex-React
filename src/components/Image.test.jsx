@@ -19,4 +19,20 @@ describe("Image Component", () => {
     expect(img).toBeInTheDocument();
     expect(img).toHaveAttribute("src", mockPath.front_default);
   });
+
+  it("prioritizes official artwork over default sprite and applies custom className", () => {
+    const mockPath = {
+      front_default: "https://example.com/front_default.png",
+      other: {
+        "official-artwork": {
+          front_default: "https://example.com/official_artwork.png",
+        },
+      },
+    };
+    render(<Image path={mockPath} alt="Charizard" className="custom-img-class" />);
+
+    const img = screen.getByRole("img", { name: "Charizard" });
+    expect(img).toHaveAttribute("src", "https://example.com/official_artwork.png");
+    expect(img).toHaveClass("custom-img-class");
+  });
 });

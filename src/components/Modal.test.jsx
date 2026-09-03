@@ -56,8 +56,8 @@ describe("Modal Component", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "pikachu" })).toBeInTheDocument();
     expect(screen.getByText("electric")).toBeInTheDocument();
-    expect(screen.getByText("4m")).toBeInTheDocument();
-    expect(screen.getByText("60kg")).toBeInTheDocument();
+    expect(screen.getByText("0.4m")).toBeInTheDocument();
+    expect(screen.getByText("6.0kg")).toBeInTheDocument();
   });
 
   it("fetches species data and handles fetch errors gracefully", async () => {

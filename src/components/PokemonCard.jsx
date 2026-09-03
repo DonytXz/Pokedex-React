@@ -65,10 +65,10 @@ const PokemonItem = (props) => {
           </div>
           <div className="w-1/4 flex flex-col justify-center pl-4">
             <p className="font-sans text-left text-md capitalize font-bold text-gray-700">
-              Height: <span className="font-normal">{pokemon.height}m</span>
+              Height: <span className="font-normal">{pokemon.height != null ? `${(pokemon.height / 10).toFixed(1)}m` : "--"}</span>
             </p>
             <p className="font-sans text-left text-md capitalize font-bold text-gray-700">
-              Weight: <span className="font-normal">{pokemon.weight}kg</span>
+              Weight: <span className="font-normal">{pokemon.weight != null ? `${(pokemon.weight / 10).toFixed(1)}kg` : "--"}</span>
             </p>
           </div>
         </button>
