@@ -175,5 +175,107 @@ test.describe("Pokémon Details Modal", () => {
     expect(canvasBox.width).toBeLessThanOrEqual(modalBox.width);
     expect(canvasBox.height).toBeLessThan(350);
   });
+
+  test("navigates between pokémon using Next and Previous arrow buttons", async ({ page }) => {
+    await page.locator('button[aria-label*="View details for bulbasaur"]').click();
+    const modal = page.getByRole("dialog");
+    await expect(modal).toBeVisible();
+
+    const prevBtn = page.getByRole("button", { name: "Previous Pokémon" });
+    const nextBtn = page.getByRole("button", { name: "Next Pokémon" });
+
+    // Bulbasaur is index 0 on page 0
+    await expect(prevBtn).toBeDisabled();
+    await expect(nextBtn).not.toBeDisabled();
+    await expect(page.locator("#modal-pokemon-name")).toHaveText("bulbasaur");
+
+    // Click Next -> moves to ivysaur
+    await nextBtn.click();
+    await expect(page.locator("#modal-pokemon-name")).toHaveText("ivysaur");
+    await expect(prevBtn).not.toBeDisabled();
+
+    // Click Prev -> moves back to bulbasaur
+    await prevBtn.click();
+    await expect(page.locator("#modal-pokemon-name")).toHaveText("bulbasaur");
+    await expect(prevBtn).toBeDisabled();
+  });
+
+  test("navigates between pokémon using keyboard ArrowLeft and ArrowRight keys", async ({ page }) => {
+    await page.locator('button[aria-label*="View details for bulbasaur"]').click();
+    const modal = page.getByRole("dialog");
+    await expect(modal).toBeVisible();
+
+    await expect(page.locator("#modal-pokemon-name")).toHaveText("bulbasaur");
+
+    // Press ArrowRight -> moves to ivysaur
+    await page.keyboard.press("ArrowRight");
+    await expect(page.locator("#modal-pokemon-name")).toHaveText("ivysaur");
+
+    // Press ArrowRight again -> moves to venusaur
+    await page.keyboard.press("ArrowRight");
+    await expect(page.locator("#modal-pokemon-name")).toHaveText("venusaur");
+
+    // Press ArrowLeft -> moves back to ivysaur
+    await page.keyboard.press("ArrowLeft");
+    await expect(page.locator("#modal-pokemon-name")).toHaveText("ivysaur");
+  });
+
+  test("navigates across page boundaries when navigating next from the last pokémon or prev from the first", async ({ page }) => {
+    // Open Pidgeot (18th pokemon, last on page 0) - exact match so pidgeotto isn't matched
+    await page.locator('button[aria-label*="View details for pidgeot,"]').click();
+    const modal = page.getByRole("dialog");
+    await expect(modal).toBeVisible();
+    await expect(page.locator("#modal-pokemon-name")).toHaveText("pidgeot");
+
+    const nextBtn = page.getByRole("button", { name: "Next Pokémon" });
+    await expect(nextBtn).not.toBeDisabled();
+
+    // Click Next from pidgeot -> advances to page 1 and opens rattata
+    await nextBtn.click();
+    await expect(page.locator("#modal-pokemon-name")).toHaveText("rattata");
+
+    // On page 1, rattata is the first pokemon. Previous button is enabled because page 0 exists.
+    const prevBtn = page.getByRole("button", { name: "Previous Pokémon" });
+    await expect(prevBtn).not.toBeDisabled();
+
+    // Click Previous from rattata -> returns to page 0 and opens pidgeot
+    await prevBtn.click();
+    await expect(page.locator("#modal-pokemon-name")).toHaveText("pidgeot");
+  });
+
+  test("navigates between pokémon via touch swipe gestures and keeps arrow buttons visible", async ({ page }) => {
+    await page.locator('button[aria-label*="View details for bulbasaur"]').click();
+    const modal = page.getByRole("dialog");
+    await expect(modal).toBeVisible();
+
+    // Verify arrow buttons are present and visible
+    const prevBtn = page.getByRole("button", { name: "Previous Pokémon" });
+    const nextBtn = page.getByRole("button", { name: "Next Pokémon" });
+    await expect(prevBtn).toBeVisible();
+    await expect(nextBtn).toBeVisible();
+
+    await expect(page.locator("#modal-pokemon-name")).toHaveText("bulbasaur");
+
+    // Swipe Left (deltaX = -150) -> Navigates to Next Pokémon (ivysaur)
+    await modal.evaluate((el) => {
+      const t1 = new Touch({ identifier: 1, target: el, clientX: 250, clientY: 200 });
+      const t2 = new Touch({ identifier: 1, target: el, clientX: 100, clientY: 200 });
+      el.dispatchEvent(new TouchEvent("touchstart", { touches: [t1], bubbles: true }));
+      el.dispatchEvent(new TouchEvent("touchend", { changedTouches: [t2], bubbles: true }));
+    });
+
+    await expect(page.locator("#modal-pokemon-name")).toHaveText("ivysaur");
+
+    // Swipe Right (deltaX = +150) -> Navigates to Previous Pokémon (bulbasaur)
+    await modal.evaluate((el) => {
+      const t1 = new Touch({ identifier: 2, target: el, clientX: 100, clientY: 200 });
+      const t2 = new Touch({ identifier: 2, target: el, clientX: 250, clientY: 200 });
+      el.dispatchEvent(new TouchEvent("touchstart", { touches: [t1], bubbles: true }));
+      el.dispatchEvent(new TouchEvent("touchend", { changedTouches: [t2], bubbles: true }));
+    });
+
+    await expect(page.locator("#modal-pokemon-name")).toHaveText("bulbasaur");
+  });
 });
+
 

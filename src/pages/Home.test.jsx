@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import Home from "./Home";
 import * as pokemonService from "../services/getPokemon";
@@ -332,5 +332,104 @@ describe("Home Page Component", () => {
     fireEvent.click(removeMemberBtn);
 
     expect(screen.getByText(/0 \/ 6 Members/i)).toBeInTheDocument();
+  });
+
+  it("navigates through pokemon in modal using next and previous buttons", async () => {
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "bulbasaur" })).toBeInTheDocument();
+    });
+
+    // Click Bulbasaur card to open modal
+    const bulbasaurCard = screen.getByRole("button", { name: /view details for bulbasaur/i });
+    fireEvent.click(bulbasaurCard);
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "bulbasaur" })).toBeInTheDocument();
+    });
+
+    // Bulbasaur is first on page 0, so Prev should be disabled
+    const prevBtn = screen.getByRole("button", { name: "Previous Pokémon" });
+    const nextBtn = screen.getByRole("button", { name: "Next Pokémon" });
+    expect(prevBtn).toBeDisabled();
+    expect(nextBtn).not.toBeDisabled();
+
+    // Click Next -> should navigate to charmander
+    fireEvent.click(nextBtn);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "charmander" })).toBeInTheDocument();
+    });
+
+    // Now prev is enabled
+    expect(screen.getByRole("button", { name: "Previous Pokémon" })).not.toBeDisabled();
+
+    // Click Prev -> should navigate back to bulbasaur
+    fireEvent.click(screen.getByRole("button", { name: "Previous Pokémon" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "bulbasaur" })).toBeInTheDocument();
+    });
+  });
+
+  it("navigates across page boundaries from last pokemon on page to first on next page and inverse", async () => {
+    // Mock 2 pages: Page 0 has [bulbasaur, charmander], Page 1 has [squirtle]
+    vi.spyOn(pokemonService, "fetchPokemons").mockImplementation(async (limit, offset) => {
+      if (offset >= 18) {
+        return {
+          count: 36,
+          results: [{ name: "squirtle", url: "https://pokeapi.co/api/v2/pokemon/7/" }],
+        };
+      }
+      return {
+        count: 36,
+        results: [
+          { name: "bulbasaur", url: "https://pokeapi.co/api/v2/pokemon/1/" },
+          { name: "charmander", url: "https://pokeapi.co/api/v2/pokemon/4/" },
+        ],
+      };
+    });
+
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "charmander" })).toBeInTheDocument();
+    });
+
+    // Open Charmander (last pokemon on Page 0)
+    const charmanderCard = screen.getByRole("button", { name: /view details for charmander/i });
+    fireEvent.click(charmanderCard);
+
+    await waitFor(() => {
+      const dialog = screen.getByRole("dialog");
+      expect(dialog).toBeInTheDocument();
+      expect(within(dialog).getByRole("heading", { name: "charmander" })).toBeInTheDocument();
+    });
+
+    // Charmander has a next page available, so next should be enabled
+    const nextBtn = screen.getByRole("button", { name: "Next Pokémon" });
+    expect(nextBtn).not.toBeDisabled();
+
+    // Click Next from last pokemon on page 0 -> should advance to page 1 and open squirtle
+    fireEvent.click(nextBtn);
+
+    await waitFor(() => {
+      const dialog = screen.getByRole("dialog");
+      expect(within(dialog).getByRole("heading", { name: "squirtle" })).toBeInTheDocument();
+    });
+
+    // Squirtle is on page 1 (index 0). Prev should be enabled because previous page exists!
+    const prevBtn = screen.getByRole("button", { name: "Previous Pokémon" });
+    expect(prevBtn).not.toBeDisabled();
+
+    // Click Prev from first pokemon on page 1 -> should go back to page 0 and open charmander
+    fireEvent.click(prevBtn);
+
+    await waitFor(() => {
+      const dialog = screen.getByRole("dialog");
+      expect(within(dialog).getByRole("heading", { name: "charmander" })).toBeInTheDocument();
+    });
   });
 });

@@ -204,5 +204,150 @@ describe("Modal Component", () => {
     });
     expect(onToggleTeamMock).toHaveBeenCalledWith(mockPokemon);
   });
+
+  it("renders Previous and Next buttons with proper disabled states and calls callbacks on click", async () => {
+    const onPrevMock = vi.fn();
+    const onNextMock = vi.fn();
+
+    await act(async () => {
+      render(
+        <Modal
+          pokemon={mockPokemon}
+          setCloseModal={vi.fn()}
+          onPrevPokemon={onPrevMock}
+          onNextPokemon={onNextMock}
+          hasPrev={false}
+          hasNext={true}
+        />
+      );
+    });
+
+    const prevBtn = screen.getByRole("button", { name: "Previous Pokémon" });
+    const nextBtn = screen.getByRole("button", { name: "Next Pokémon" });
+
+    expect(prevBtn).toBeDisabled();
+    expect(nextBtn).not.toBeDisabled();
+
+    act(() => {
+      fireEvent.click(prevBtn);
+    });
+    expect(onPrevMock).not.toHaveBeenCalled();
+
+    act(() => {
+      fireEvent.click(nextBtn);
+    });
+    expect(onNextMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("navigates with ArrowLeft and ArrowRight keyboard keys", async () => {
+    const onPrevMock = vi.fn();
+    const onNextMock = vi.fn();
+
+    await act(async () => {
+      render(
+        <Modal
+          pokemon={mockPokemon}
+          setCloseModal={vi.fn()}
+          onPrevPokemon={onPrevMock}
+          onNextPokemon={onNextMock}
+          hasPrev={true}
+          hasNext={true}
+        />
+      );
+    });
+
+    act(() => {
+      fireEvent.keyDown(window, { key: "ArrowLeft" });
+    });
+    expect(onPrevMock).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      fireEvent.keyDown(window, { key: "ArrowRight" });
+    });
+    expect(onNextMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not navigate via keyboard arrows when hasPrev or hasNext is false", async () => {
+    const onPrevMock = vi.fn();
+    const onNextMock = vi.fn();
+
+    await act(async () => {
+      render(
+        <Modal
+          pokemon={mockPokemon}
+          setCloseModal={vi.fn()}
+          onPrevPokemon={onPrevMock}
+          onNextPokemon={onNextMock}
+          hasPrev={false}
+          hasNext={false}
+        />
+      );
+    });
+
+    act(() => {
+      fireEvent.keyDown(window, { key: "ArrowLeft" });
+      fireEvent.keyDown(window, { key: "ArrowRight" });
+    });
+    expect(onPrevMock).not.toHaveBeenCalled();
+    expect(onNextMock).not.toHaveBeenCalled();
+  });
+
+  it("navigates via touch swipe left (next) and swipe right (prev)", async () => {
+    const onPrevMock = vi.fn();
+    const onNextMock = vi.fn();
+
+    await act(async () => {
+      render(
+        <Modal
+          pokemon={mockPokemon}
+          setCloseModal={vi.fn()}
+          onPrevPokemon={onPrevMock}
+          onNextPokemon={onNextMock}
+          hasPrev={true}
+          hasNext={true}
+        />
+      );
+    });
+
+    const dialog = screen.getByRole("dialog");
+
+    // Swipe Left (start at 200, end at 100 -> diffX = -100) -> should call onNext
+    fireEvent.touchStart(dialog, {
+      touches: [{ clientX: 200, clientY: 150 }],
+    });
+    fireEvent.touchEnd(dialog, {
+      changedTouches: [{ clientX: 100, clientY: 150 }],
+    });
+    expect(onNextMock).toHaveBeenCalledTimes(1);
+
+    // Swipe Right (start at 100, end at 200 -> diffX = +100) -> should call onPrev
+    fireEvent.touchStart(dialog, {
+      touches: [{ clientX: 100, clientY: 150 }],
+    });
+    fireEvent.touchEnd(dialog, {
+      changedTouches: [{ clientX: 200, clientY: 150 }],
+    });
+    expect(onPrevMock).toHaveBeenCalledTimes(1);
+
+    // Vertical scroll gesture (start at 100, 100; end at 120, 250 -> diffY = 150, diffX = 20) -> should NOT navigate
+    fireEvent.touchStart(dialog, {
+      touches: [{ clientX: 100, clientY: 100 }],
+    });
+    fireEvent.touchEnd(dialog, {
+      changedTouches: [{ clientX: 120, clientY: 250 }],
+    });
+    expect(onPrevMock).toHaveBeenCalledTimes(1);
+    expect(onNextMock).toHaveBeenCalledTimes(1);
+
+    // Small swipe below threshold of 50px (diffX = 30) -> should NOT navigate
+    fireEvent.touchStart(dialog, {
+      touches: [{ clientX: 100, clientY: 100 }],
+    });
+    fireEvent.touchEnd(dialog, {
+      changedTouches: [{ clientX: 130, clientY: 100 }],
+    });
+    expect(onPrevMock).toHaveBeenCalledTimes(1);
+    expect(onNextMock).toHaveBeenCalledTimes(1);
+  });
 });
 

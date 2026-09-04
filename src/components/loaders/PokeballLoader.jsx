@@ -1,14 +1,22 @@
 import React from "react";
 
-const PokeballLoader = () => {
+const PokeballLoader = ({
+  text = "Loading Pokémon...",
+  size = "md",
+  className = "",
+}) => {
+  const isSmall = size === "sm";
+
   return (
     <div
       role="status"
       aria-live="polite"
-      className="w-full h-full flex flex-col items-center justify-center min-h-[200px]"
+      className={`w-full h-full flex flex-col items-center justify-center ${
+        isSmall ? "min-h-[120px] py-4" : "min-h-[200px]"
+      } ${className}`}
     >
       <svg
-        className="w-16 h-16 animate-spin opacity-90"
+        className={`${isSmall ? "w-10 h-10" : "w-16 h-16"} animate-spin opacity-90`}
         viewBox="0 0 100 100"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
@@ -26,7 +34,15 @@ const PokeballLoader = () => {
         {/* Center inner circle */}
         <circle cx="50" cy="50" r="6" fill="#ffffff" stroke="#1a1a1a" strokeWidth="4" />
       </svg>
-      <p className="mt-4 text-xl font-bold text-gray-700">Loading Pokémon...</p>
+      {text && (
+        <p
+          className={`${
+            isSmall ? "mt-2.5 text-sm font-semibold text-gray-600" : "mt-4 text-xl font-bold text-gray-700"
+          }`}
+        >
+          {text}
+        </p>
+      )}
     </div>
   );
 };

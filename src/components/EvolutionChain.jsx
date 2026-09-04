@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchPokemonData, fetchEvolutionChain } from "../services/getPokemon";
 import { parseEvolutionChain } from "../helpers/evolutionParser";
+import PokeballLoader from "./loaders/PokeballLoader";
 
 const EvolutionNode = ({ node, currentPokemonName, onSelectPokemon }) => {
   if (!node) return null;
@@ -125,11 +126,7 @@ const EvolutionChain = ({ speciesUrl, currentPokemonName, onSelectPokemon }) => 
   }, [speciesUrl]);
 
   if (loading) {
-    return (
-      <div className="w-full text-center py-6 text-sm text-gray-500" role="status">
-        Loading evolution chain...
-      </div>
-    );
+    return <PokeballLoader text="Loading evolution chain..." size="sm" />;
   }
 
   if (error || !evolutionTree) {

@@ -10,6 +10,8 @@ import PokeballLoader from "./loaders/PokeballLoader";
 import AudioCry from "./AudioCry";
 import EvolutionChain from "./EvolutionChain";
 import TypeMatchups from "./TypeMatchups";
+import ArrowPrev from "../assets/icons/arrow-prev.svg";
+import ArrowNext from "../assets/icons/arrow-next.svg";
 
 const Modal = (props) => {
   const {
@@ -20,6 +22,10 @@ const Modal = (props) => {
     onToggleFavorite,
     isInTeam,
     onToggleTeam,
+    onPrevPokemon,
+    onNextPokemon,
+    hasPrev = false,
+    hasNext = false,
   } = props;
   const [types, setTypes] = useState([]);
   const [clickedBtn, setClickedBtn] = useState(false);
@@ -29,6 +35,41 @@ const Modal = (props) => {
   const [isShiny, setIsShiny] = useState(false);
   const modalRef = useRef(null);
   const closeButtonRef = useRef(null);
+  const touchStartXRef = useRef(null);
+  const touchStartYRef = useRef(null);
+
+  const handleTouchStart = (e) => {
+    if (e.touches && e.touches.length === 1) {
+      touchStartXRef.current = e.touches[0].clientX;
+      touchStartYRef.current = e.touches[0].clientY;
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartXRef.current === null || touchStartYRef.current === null) return;
+    if (!e.changedTouches || e.changedTouches.length === 0) return;
+
+    const diffX = e.changedTouches[0].clientX - touchStartXRef.current;
+    const diffY = e.changedTouches[0].clientY - touchStartYRef.current;
+
+    // Must be predominantly horizontal and exceed threshold of 50px
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+      if (diffX < 0) {
+        // Slide left -> Next Pokémon
+        if (hasNext && typeof onNextPokemon === "function") {
+          onNextPokemon();
+        }
+      } else {
+        // Slide right -> Previous Pokémon
+        if (hasPrev && typeof onPrevPokemon === "function") {
+          onPrevPokemon();
+        }
+      }
+    }
+
+    touchStartXRef.current = null;
+    touchStartYRef.current = null;
+  };
 
   const getSpecies = async (query) => {
     if (!query) return;
@@ -71,6 +112,22 @@ const Modal = (props) => {
         return;
       }
 
+      if (e.key === "ArrowLeft") {
+        if (hasPrev && typeof onPrevPokemon === "function") {
+          e.preventDefault();
+          onPrevPokemon();
+        }
+        return;
+      }
+
+      if (e.key === "ArrowRight") {
+        if (hasNext && typeof onNextPokemon === "function") {
+          e.preventDefault();
+          onNextPokemon();
+        }
+        return;
+      }
+
       if (e.key === "Tab" && modalRef.current) {
         const focusableElements = modalRef.current.querySelectorAll(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -102,7 +159,7 @@ const Modal = (props) => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [pokemon]);
+  }, [pokemon, hasPrev, hasNext, onPrevPokemon, onNextPokemon]);
 
   const bst = calculateBaseStatTotal(pokemon);
   const cryUrl = pokemon?.cries?.latest || pokemon?.cries?.legacy;
@@ -116,8 +173,34 @@ const Modal = (props) => {
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-pokemon-name"
-            className="w-11/12 md:w-3/4 lg:w-3/5 xl:w-1/2 p-6 md:p-8 max-h-[92vh] overflow-y-auto overflow-x-hidden flex flex-col bg-white relative border-2 border-gray-100 shadow-2xl rounded-2xl opacity-100 pointer-events-auto"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            className="w-11/12 md:w-3/4 lg:w-3/5 xl:w-1/2 p-6 md:p-8 max-h-[92vh] overflow-y-auto overflow-x-hidden flex flex-col bg-white relative border-2 border-gray-100 shadow-2xl rounded-2xl opacity-100 pointer-events-auto select-none sm:select-auto"
           >
+            {/* Previous Pokémon Button */}
+            <button
+              type="button"
+              onClick={onPrevPokemon}
+              disabled={!hasPrev}
+              aria-label="Previous Pokémon"
+              title="Previous Pokémon (← Arrow or Swipe Right)"
+              className="hover:bg-gray-100 active:bg-gray-200 absolute bg-white text-center leading-6 w-8 h-8 p-1 box-content top-4 left-4 border-2 border-gray-300 rounded-full focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:outline-none flex items-center justify-center shadow-md cursor-pointer z-10 disabled:opacity-30 disabled:cursor-not-allowed transition hover:scale-105 active:scale-95 disabled:hover:scale-100"
+            >
+              <img src={ArrowPrev} className="w-3.5 h-3.5" alt="" aria-hidden="true" />
+            </button>
+
+            {/* Next Pokémon Button */}
+            <button
+              type="button"
+              onClick={onNextPokemon}
+              disabled={!hasNext}
+              aria-label="Next Pokémon"
+              title="Next Pokémon (→ Arrow or Swipe Left)"
+              className="hover:bg-gray-100 active:bg-gray-200 absolute bg-white text-center leading-6 w-8 h-8 p-1 box-content top-4 right-16 border-2 border-gray-300 rounded-full focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:outline-none flex items-center justify-center shadow-md cursor-pointer z-10 disabled:opacity-30 disabled:cursor-not-allowed transition hover:scale-105 active:scale-95 disabled:hover:scale-100"
+            >
+              <img src={ArrowNext} className="w-3.5 h-3.5" alt="" aria-hidden="true" />
+            </button>
+
             {/* Close Button */}
             <button
               ref={closeButtonRef}

@@ -46,6 +46,9 @@ const Home = () => {
   const [allPokemonList, setAllPokemonList] = useState([]);
   const [searchStatus, setSearchStatus] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [pagePokemons, setPagePokemons] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [page, setPage] = useState(0);
 
   // Filters state
   const [selectedGen, setSelectedGen] = useState("all");
@@ -59,6 +62,7 @@ const Home = () => {
 
   const abortControllerRef = useRef(null);
   const lastActiveElementRef = useRef(null);
+  const pendingTargetRef = useRef(null);
 
   useEffect(() => {
     const loadAllPokemon = async () => {
@@ -297,12 +301,91 @@ const Home = () => {
 
   const handleCloseModal = useCallback((isClosed) => {
     setCloseModal(isClosed);
+    pendingTargetRef.current = null;
     if (isClosed && lastActiveElementRef.current) {
       setTimeout(() => {
         lastActiveElementRef.current?.focus();
       }, 50);
     }
   }, []);
+
+  const handlePokemonsLoaded = useCallback(
+    (pokemonsList, totalCount) => {
+      setPagePokemons(pokemonsList);
+      setTotalPages(totalCount);
+      if (pendingTargetRef.current && pokemonsList && pokemonsList.length > 0) {
+        const target = pendingTargetRef.current;
+        pendingTargetRef.current = null;
+        if (target === "first") {
+          handleOpenModal(pokemonsList[0].name);
+        } else if (target === "last") {
+          handleOpenModal(pokemonsList[pokemonsList.length - 1].name);
+        }
+      }
+    },
+    [handleOpenModal]
+  );
+
+  const activePokemonList = searched ? pokemon : pagePokemons;
+  const currentPokemonIndex = activePokemonList.findIndex((p) => {
+    if (!p || !pokemonDetails) return false;
+    return (
+      p.id === pokemonDetails.id ||
+      p.name?.toLowerCase() === pokemonDetails.name?.toLowerCase()
+    );
+  });
+
+  const hasPrev = searched
+    ? currentPokemonIndex > 0
+    : currentPokemonIndex >= 0
+    ? currentPokemonIndex > 0 || page > 0
+    : Boolean(pokemonDetails?.id && pokemonDetails.id > 1);
+
+  const hasNext = searched
+    ? currentPokemonIndex >= 0 && currentPokemonIndex < activePokemonList.length - 1
+    : currentPokemonIndex >= 0
+    ? currentPokemonIndex < activePokemonList.length - 1 || page < totalPages - 1
+    : Boolean(pokemonDetails?.id);
+
+  const handlePrevPokemon = useCallback(() => {
+    if (searched) {
+      if (currentPokemonIndex > 0) {
+        handleOpenModal(activePokemonList[currentPokemonIndex - 1].name);
+      }
+      return;
+    }
+
+    if (currentPokemonIndex >= 0) {
+      if (currentPokemonIndex > 0) {
+        handleOpenModal(activePokemonList[currentPokemonIndex - 1].name);
+      } else if (page > 0) {
+        pendingTargetRef.current = "last";
+        setPage((prev) => prev - 1);
+      }
+    } else if (pokemonDetails?.id && pokemonDetails.id > 1) {
+      handleOpenModal(pokemonDetails.id - 1);
+    }
+  }, [searched, currentPokemonIndex, activePokemonList, page, pokemonDetails, handleOpenModal]);
+
+  const handleNextPokemon = useCallback(() => {
+    if (searched) {
+      if (currentPokemonIndex >= 0 && currentPokemonIndex < activePokemonList.length - 1) {
+        handleOpenModal(activePokemonList[currentPokemonIndex + 1].name);
+      }
+      return;
+    }
+
+    if (currentPokemonIndex >= 0) {
+      if (currentPokemonIndex < activePokemonList.length - 1) {
+        handleOpenModal(activePokemonList[currentPokemonIndex + 1].name);
+      } else if (page < totalPages - 1) {
+        pendingTargetRef.current = "first";
+        setPage((prev) => prev + 1);
+      }
+    } else if (pokemonDetails?.id) {
+      handleOpenModal(pokemonDetails.id + 1);
+    }
+  }, [searched, currentPokemonIndex, activePokemonList, page, totalPages, pokemonDetails, handleOpenModal]);
 
   useEffect(() => {
     if (!pokemonModalVal) return;
@@ -386,6 +469,10 @@ const Home = () => {
               onToggleFavorite={handleToggleFavorite}
               isInTeam={inTeam(pokemonDetails)}
               onToggleTeam={handleToggleTeam}
+              onPrevPokemon={handlePrevPokemon}
+              onNextPokemon={handleNextPokemon}
+              hasPrev={hasPrev}
+              hasNext={hasNext}
             />
           </div>
         </div>
@@ -447,6 +534,9 @@ const Home = () => {
               onToggleFavorite={handleToggleFavorite}
               team={team}
               onToggleTeam={handleToggleTeam}
+              page={page}
+              setPage={setPage}
+              onPokemonsLoaded={handlePokemonsLoaded}
             />
           </main>
         </div>
