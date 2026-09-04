@@ -7,7 +7,7 @@ test.describe("Home Page & Core UI", () => {
     await page.goto("/");
   });
 
-  test("renders the Pokédex logo, search bar, layout toggle, and initial grid of cards", async ({ page }) => {
+  test("renders the Pokédex logo, search bar, layout toggle, and initial grid of cards", async ({ page, isMobile }) => {
     // 1. Verify Logo
     const logo = page.locator('img[alt="Pokémon"]');
     await expect(logo).toBeVisible();
@@ -17,9 +17,13 @@ test.describe("Home Page & Core UI", () => {
     await expect(searchInput).toBeVisible();
     await expect(searchInput).toHaveAttribute("placeholder", "Search by keywords");
 
-    // 3. Verify Layout toggle button
+    // 3. Verify Layout toggle button (hidden on mobile, visible on desktop/tablet)
     const toggleBtn = page.getByRole("button", { name: /switch to list view/i });
-    await expect(toggleBtn).toBeVisible();
+    if (isMobile) {
+      await expect(toggleBtn).not.toBeVisible();
+    } else {
+      await expect(toggleBtn).toBeVisible();
+    }
 
     // 4. Verify 18 Pokémon cards rendered in Grid view
     const cards = page.locator('section[aria-label="Pokémon collection"] button[aria-label*="View details for"]');
@@ -46,7 +50,8 @@ test.describe("Home Page & Core UI", () => {
     await expect(main).toBeFocused();
   });
 
-  test("toggles between Grid View and List View layout", async ({ page }) => {
+  test("toggles between Grid View and List View layout", async ({ page, isMobile }) => {
+    test.skip(isMobile, "View switcher is disabled on mobile devices");
     const toggleBtn = page.locator("button[aria-label*='Switch to']");
 
     // Initial state: Grid view (button offers switch to list view)

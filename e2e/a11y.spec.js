@@ -19,7 +19,8 @@ test.describe("Accessibility (A11y) Audits", () => {
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test("Home Page in List View has no automatically detectable accessibility violations", async ({ page }) => {
+  test("Home Page in List View has no automatically detectable accessibility violations", async ({ page, isMobile }) => {
+    test.skip(isMobile, "List view switcher is disabled on mobile devices");
     const toggleBtn = page.locator("button[aria-label*='Switch to']");
     await toggleBtn.click();
     await expect(page.locator('section[aria-label="Pokémon collection"] button').first()).toBeVisible();

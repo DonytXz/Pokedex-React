@@ -4,6 +4,7 @@ import SearchImage from "../assets/icons/search.svg";
 const search = (props) => {
   const { getPokemon, setSearched } = props;
   const [searchValue, setSearchValue] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const debounceRef = useRef(null);
 
   useEffect(() => {
@@ -57,21 +58,29 @@ const search = (props) => {
         }
         triggerSearch(searchValue);
       }}
-      className="flex-1 h-full relative p-2 bg-white flex flex-row items-center border-1 border-t-2 shadow_top rounded-md shadow focus-within:ring-2 focus-within:ring-green-600"
+      className="flex-1 h-full relative px-3 py-1 bg-white flex flex-row items-center border border-gray-200 border-t-2 shadow_top rounded-md shadow focus-within:ring-2 focus-within:ring-green-600 transition-all"
     >
       <label htmlFor="pokemon-search" className="sr-only">
         Search Pokémon by name or ID
       </label>
-      <div className="w-1/12 h-full flex items-center justify-center">
-        <img className="mx-auto my-auto" src={SearchImage} alt="" aria-hidden="true" />
-      </div>
-      <div className="w-11/12 h-full">
+      {isFocused && (
+        <div
+          data-testid="search-magnifier"
+          className="flex items-center justify-center pl-1 pr-2 shrink-0"
+          onMouseDown={(e) => e.preventDefault()}
+        >
+          <img className="w-4 h-4 block" src={SearchImage} alt="" aria-hidden="true" />
+        </div>
+      )}
+      <div className="flex-1 h-full flex items-center">
         <input
           id="pokemon-search"
           value={searchValue}
           onChange={inputChange}
           onKeyDown={handleKeyDown}
-          className="w-full p-2 border-none focus:outline-none"
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          className="w-full px-2 py-1 border-none focus:outline-none bg-transparent text-sm md:text-base text-gray-800 placeholder-gray-400"
           type="search"
           aria-label="Search Pokémon by name or ID"
           placeholder="Search by keywords"

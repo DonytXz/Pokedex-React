@@ -21,7 +21,7 @@ const Image = (props) => {
 
   return (
     <img
-      className={className || "mx-auto"}
+      className={className || "max-h-full max-w-full object-contain mx-auto"}
       src={imgSrc}
       alt={alt}
       loading="lazy"

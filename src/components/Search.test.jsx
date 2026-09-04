@@ -84,4 +84,20 @@ describe("Search Component", () => {
 
     expect(clearTimeoutSpy).toHaveBeenCalled();
   });
+
+  it("hides magnifier icon when search input is unfocused and shows it when focused", () => {
+    render(<Search getPokemon={vi.fn()} setSearched={vi.fn()} />);
+    const input = screen.getByRole("searchbox");
+
+    // Initially unfocused: magnifier should not be present
+    expect(screen.queryByTestId("search-magnifier")).not.toBeInTheDocument();
+
+    // Focus input: magnifier should appear
+    fireEvent.focus(input);
+    expect(screen.getByTestId("search-magnifier")).toBeInTheDocument();
+
+    // Blur input: magnifier should disappear
+    fireEvent.blur(input);
+    expect(screen.queryByTestId("search-magnifier")).not.toBeInTheDocument();
+  });
 });
