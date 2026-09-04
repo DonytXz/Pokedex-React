@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchTypeData, calculateTypeMatchups } from "../services/getPokemon";
 import { TYPE_COLORS } from "./Types";
+import PokeballLoader from "./loaders/PokeballLoader";
 
 const TypeBadge = ({ typeName, multiplier }) => {
   const theme = TYPE_COLORS[typeName] || { bg: "#777777", text: "#ffffff" };
@@ -60,11 +61,7 @@ const TypeMatchups = ({ types = [] }) => {
   }, [types]);
 
   if (loading) {
-    return (
-      <div className="w-full text-center py-4 text-sm text-gray-500" role="status">
-        Calculating type matchups...
-      </div>
-    );
+    return <PokeballLoader text="Calculating type matchups..." size="sm" />;
   }
 
   if (!matchups) {

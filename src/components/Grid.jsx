@@ -18,11 +18,16 @@ const Grid = (props) => {
     onToggleFavorite,
     team = [],
     onToggleTeam,
+    onPokemonsLoaded,
+    page: propPage,
+    setPage: propSetPage,
     // isGrid
   } = props;
   const [pokemons, setPokemons] = useState([]);
   const [clickedPokemon, setClickedPokemon] = useState();
-  const [page, setPage] = useState(0);
+  const [internalPage, setInternalPage] = useState(0);
+  const page = propPage !== undefined ? propPage : internalPage;
+  const setPage = propSetPage || setInternalPage;
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -65,9 +70,16 @@ const Grid = (props) => {
       const promises = data.results.map(async (pokemon) => fetchPokemonData(pokemon.url));
       const results = await Promise.all(promises);
       setPokemons(results);
-      setTotal(Math.floor(data.count / 18));
+      const totalPages = Math.floor(data.count / 18);
+      setTotal(totalPages);
+      if (typeof onPokemonsLoaded === "function") {
+        onPokemonsLoaded(results, totalPages);
+      }
     } catch (err) {
       setPokemons([]);
+      if (typeof onPokemonsLoaded === "function") {
+        onPokemonsLoaded([], 0);
+      }
     } finally {
       setLoading(false);
     }

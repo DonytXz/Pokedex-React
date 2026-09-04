@@ -12,4 +12,19 @@ describe("PokeballLoader Component", () => {
     expect(statusContainer).toHaveAttribute("aria-live", "polite");
     expect(screen.getByText("Loading Pokémon...")).toBeInTheDocument();
   });
+
+  it("renders with custom text and small size", () => {
+    render(<PokeballLoader text="Loading evolution chain..." size="sm" className="custom-test-class" />);
+
+    const statusContainer = screen.getByRole("status");
+    expect(statusContainer).toBeInTheDocument();
+    expect(statusContainer).toHaveClass("custom-test-class");
+    expect(screen.getByText("Loading evolution chain...")).toBeInTheDocument();
+  });
+
+  it("renders without text paragraph when text is empty", () => {
+    render(<PokeballLoader text="" />);
+    expect(screen.getByRole("status")).toBeInTheDocument();
+    expect(screen.queryByText("Loading Pokémon...")).toBeNull();
+  });
 });
