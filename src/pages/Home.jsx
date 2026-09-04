@@ -320,6 +320,18 @@ const Home = () => {
     }
   }, [closeModal, isTeamOpen]);
 
+  // Ensure grid view is active on mobile screens (< 768px)
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window !== "undefined" && window.innerWidth < 768 && !isList) {
+        setIslist(true);
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isList]);
+
   return (
     <>
       {/* Skip to Main Content Link for keyboard accessibility */}

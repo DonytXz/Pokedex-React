@@ -31,16 +31,16 @@ const PokemonItem = (props) => {
           type="button"
           onClick={assignValue}
           aria-label={`View details for ${pokemon.name}, number ${isGreater(pokemon.id)}${pokemon.id}`}
-          className="w-full h-full bg-white capitalize p-4 border-6 border-white rounded-tl-2xl rounded-br-2xl cursor-pointer hover:shadow-lg transition-shadow text-left focus-visible:ring-4 focus-visible:ring-green-600 focus-visible:outline-none"
+          className="w-full h-full min-h-[220px] md:min-h-[240px] bg-white capitalize p-4 border-6 border-white rounded-tl-2xl rounded-br-2xl cursor-pointer hover:shadow-lg transition-shadow flex flex-col justify-between items-center text-left focus-visible:ring-4 focus-visible:ring-green-600 focus-visible:outline-none"
         >
-          <div className="w-full h-2/3 p-2 mb-2 md:mb-4">
-            <Image path={pokemon.sprites} alt="" />
+          <div className="w-full h-32 sm:h-36 md:h-32 flex items-center justify-center p-2 mb-2 overflow-hidden">
+            <Image path={pokemon.sprites} alt="" className="max-h-full max-w-full object-contain mx-auto" />
           </div>
-          <div className="w-full h-1/3">
-            <h2 className="font-sans text-center text-xl truncate font-bold">
+          <div className="w-full mt-auto text-center">
+            <h2 className="font-sans text-center text-lg md:text-xl truncate font-bold text-gray-900 leading-snug">
               {pokemon.name}
             </h2>
-            <p className="font-sans text-center text-gray-600">
+            <p className="font-sans text-center text-gray-600 text-sm">
               {isGreater(pokemon.id)}
               {pokemon.id}
             </p>

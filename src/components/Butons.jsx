@@ -16,7 +16,7 @@ const Butons = (props) => {
       aria-label={isList ? "Switch to list view" : "Switch to grid view"}
       aria-pressed={!isList}
       title={isList ? "Switch to list view" : "Switch to grid view"}
-      className="self-stretch px-5 bg-green-600 border-2 border-transparent rounded-lg mr-2 lg:mr-4 flex items-center justify-center shrink-0 focus-visible:ring-2 focus-visible:ring-green-700 focus-visible:outline-none"
+      className="hidden md:flex self-stretch px-5 bg-green-600 border-2 border-transparent rounded-lg mr-2 lg:mr-4 items-center justify-center shrink-0 focus-visible:ring-2 focus-visible:ring-green-700 focus-visible:outline-none"
     >
       <img
         className="w-6 h-6 block"
