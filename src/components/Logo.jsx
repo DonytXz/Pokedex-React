@@ -1,4 +1,3 @@
-import React from "react";
 import PokemonLogo from "../assets/img/logo-pokemon.png";
 
 const Logo = () => {

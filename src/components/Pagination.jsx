@@ -1,4 +1,3 @@
-import React from "react";
 import ArrowNext from "../assets/icons/arrow-next.svg";
 import ArrowPrev from "../assets/icons/arrow-prev.svg";
 
@@ -11,7 +10,6 @@ const Pagination = (props) => {
     underLatsPage,
     lastPage,
     page,
-    searched,
     total,
   } = props;
   const isFirstPage = page <= 0;

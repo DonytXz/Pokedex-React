@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { fetchPokemonData, fetchEvolutionChain } from "../services/getPokemon";
 import { parseEvolutionChain } from "../helpers/evolutionParser";
 import PokeballLoader from "./loaders/PokeballLoader";
@@ -112,6 +112,7 @@ const EvolutionChain = ({ speciesUrl, currentPokemonName, onSelectPokemon }) => 
           setEvolutionTree(parsed);
         }
       } catch (err) {
+        console.error("Failed to load evolution chain:", err);
         if (isMounted) setError(true);
       } finally {
         if (isMounted) setLoading(false);

@@ -1,4 +1,3 @@
-import React from "react";
 import { ALL_POKEMON_TYPES } from "../services/getPokemon";
 
 export const GENERATIONS = [

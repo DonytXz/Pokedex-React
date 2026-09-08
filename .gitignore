@@ -4,3 +4,12 @@ coverage/
 playwright-report/
 test-results/
 .DS_Store
+
+# Sonar
+.scannerwork/
+.sonar/
+
+# Environment variables
+.env
+.env.local
+.env.*.local

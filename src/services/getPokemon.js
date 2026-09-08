@@ -28,7 +28,9 @@ export const clearCache = () => {
     if (typeof window !== "undefined" && window.sessionStorage) {
       window.sessionStorage.clear();
     }
-  } catch {}
+  } catch (err) {
+    console.debug("Failed to clear sessionStorage:", err);
+  }
 };
 
 export const fetchPokemon = async (pokemon) => {
@@ -51,7 +53,10 @@ export const fetchPokemon = async (pokemon) => {
       saveToStorage(cacheKey, data);
     }
     return data;
-  } catch (err) {}
+  } catch (err) {
+    console.error("Failed to fetch pokemon:", err);
+    return undefined;
+  }
 };
 
 export const fetchPokemons = async (limit = 25, offset = 0) => {
@@ -72,7 +77,10 @@ export const fetchPokemons = async (limit = 25, offset = 0) => {
       saveToStorage(cacheKey, data);
     }
     return data;
-  } catch (err) {}
+  } catch (err) {
+    console.error("Failed to fetch pokemons:", err);
+    return undefined;
+  }
 };
 
 export const fetchAllPokemonNames = async () => {
@@ -93,7 +101,10 @@ export const fetchAllPokemonNames = async () => {
       saveToStorage(cacheKey, data);
     }
     return data;
-  } catch (err) {}
+  } catch (err) {
+    console.error("Failed to fetch all pokemon names:", err);
+    return undefined;
+  }
 };
 
 export const fetchPokemonData = async (url, signal) => {
@@ -203,7 +214,7 @@ export const ALL_POKEMON_TYPES = [
   "fairy",
 ];
 
-export const calculateTypeMatchups = (pokemonTypes = [], typeDataList = []) => {
+export const calculateTypeMatchups = (_pokemonTypes = [], typeDataList = []) => {
   const multipliers = {};
   ALL_POKEMON_TYPES.forEach((t) => {
     multipliers[t] = 1.0;

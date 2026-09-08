@@ -1,4 +1,3 @@
-import React from "react";
 
 export const TYPE_COLORS = {
   normal: { bg: "#A8A878", text: "#111827" },

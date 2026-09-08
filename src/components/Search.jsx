@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import SearchImage from "../assets/icons/search.svg";
 
 const search = (props) => {
