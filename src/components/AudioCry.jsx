@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const AudioCry = ({ cryUrl, pokemonName }) => {
   const [isPlaying, setIsPlaying] = useState(false);

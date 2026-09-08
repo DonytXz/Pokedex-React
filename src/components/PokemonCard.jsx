@@ -1,13 +1,10 @@
 import Image from "./Image";
-import React from "react";
 import { isGreater } from "../helpers/isGreater";
 import Types from "./Types";
 
 const PokemonItem = (props) => {
   const {
     pokemon,
-    page,
-    setPage,
     setcloseMdoal,
     setClickedPokemon,
     isList,

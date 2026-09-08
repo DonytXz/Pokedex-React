@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Grid from "../components/Grid";
 import Logo from "../components/Logo";
 import Search from "../components/Search";
@@ -31,13 +31,15 @@ const setStoredItem = (key, data) => {
     if (typeof window !== "undefined" && window.localStorage) {
       window.localStorage.setItem(key, JSON.stringify(data));
     }
-  } catch {}
+  } catch (error) {
+    console.debug("Failed to set localStorage item:", error);
+  }
 };
 
 const Home = () => {
   const [pokemon, setPokemon] = useState([]);
   const [pokemonDetails, setPokemonDetails] = useState(null);
-  const [sharedPageVal, setSharedPageVal] = useState();
+  const [, setSharedPageVal] = useState();
   const [closeModal, setCloseModal] = useState(true);
   const [pokemonModalVal, setPokemonModalVal] = useState();
   const [searched, setSearched] = useState(false);
@@ -335,17 +337,27 @@ const Home = () => {
     );
   });
 
-  const hasPrev = searched
-    ? currentPokemonIndex > 0
-    : currentPokemonIndex >= 0
-    ? currentPokemonIndex > 0 || page > 0
-    : Boolean(pokemonDetails?.id && pokemonDetails.id > 1);
+  const computeHasPrev = () => {
+    if (searched) {
+      return currentPokemonIndex > 0;
+    }
+    if (currentPokemonIndex >= 0) {
+      return currentPokemonIndex > 0 || page > 0;
+    }
+    return Boolean(pokemonDetails?.id && pokemonDetails.id > 1);
+  };
+  const hasPrev = computeHasPrev();
 
-  const hasNext = searched
-    ? currentPokemonIndex >= 0 && currentPokemonIndex < activePokemonList.length - 1
-    : currentPokemonIndex >= 0
-    ? currentPokemonIndex < activePokemonList.length - 1 || page < totalPages - 1
-    : Boolean(pokemonDetails?.id);
+  const computeHasNext = () => {
+    if (searched) {
+      return currentPokemonIndex >= 0 && currentPokemonIndex < activePokemonList.length - 1;
+    }
+    if (currentPokemonIndex >= 0) {
+      return currentPokemonIndex < activePokemonList.length - 1 || page < totalPages - 1;
+    }
+    return Boolean(pokemonDetails?.id);
+  };
+  const hasNext = computeHasNext();
 
   const handlePrevPokemon = useCallback(() => {
     if (searched) {

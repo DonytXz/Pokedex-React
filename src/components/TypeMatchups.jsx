@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { fetchTypeData, calculateTypeMatchups } from "../services/getPokemon";
 import { TYPE_COLORS } from "./Types";
 import PokeballLoader from "./loaders/PokeballLoader";
@@ -47,6 +47,7 @@ const TypeMatchups = ({ types = [] }) => {
           setMatchups(result);
         }
       } catch (err) {
+        console.error("Failed to load type data for matchups:", err);
         if (isMounted) setMatchups(null);
       } finally {
         if (isMounted) setLoading(false);

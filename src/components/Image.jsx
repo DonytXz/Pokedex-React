@@ -1,4 +1,3 @@
-import React from "react";
 
 const Image = (props) => {
   const { path, alt, className, shiny } = props;

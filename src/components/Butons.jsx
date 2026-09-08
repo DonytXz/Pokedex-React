@@ -1,4 +1,3 @@
-import React from "react";
 import ColumnsIcon from "../assets/icons/columns.svg";
 import ListIcon from "../assets/icons/list.svg";
 

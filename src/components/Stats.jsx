@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import HorizontalBarChart from "./HorizontalBarChart";
 import Chart from "./Chart";
 
