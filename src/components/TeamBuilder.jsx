@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import Image from "./Image";
 import Types from "./Types";
 import { calculateBaseStatTotal } from "../services/getPokemon";
+import { handleFocusTrap } from "../helpers/focusTrap";
 
 const TeamBuilder = ({
   team = [],
@@ -14,28 +15,6 @@ const TeamBuilder = ({
   const closeButtonRef = useRef(null);
   const modalRef = useRef(null);
 
-  const handleFocusTrap = (e) => {
-    if (!modalRef.current) return;
-    const focusableElements = modalRef.current.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    const focusable = Array.from(focusableElements).filter(
-      (el) => !el.hasAttribute("disabled") && el.offsetParent !== null
-    );
-    if (focusable.length === 0) return;
-
-    const firstElement = focusable[0];
-    const lastElement = focusable[focusable.length - 1];
-
-    if (e.shiftKey && document.activeElement === firstElement) {
-      e.preventDefault();
-      lastElement.focus();
-    } else if (!e.shiftKey && document.activeElement === lastElement) {
-      e.preventDefault();
-      firstElement.focus();
-    }
-  };
-
   useEffect(() => {
     if (isOpen && closeButtonRef.current) {
       closeButtonRef.current.focus();
@@ -46,7 +25,7 @@ const TeamBuilder = ({
         e.preventDefault();
         onClose();
       } else if (e.key === "Tab" && isOpen) {
-        handleFocusTrap(e);
+        handleFocusTrap(e, modalRef.current);
       }
     };
 

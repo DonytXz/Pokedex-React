@@ -10,6 +10,7 @@ import PokeballLoader from "./loaders/PokeballLoader";
 import AudioCry from "./AudioCry";
 import EvolutionChain from "./EvolutionChain";
 import TypeMatchups from "./TypeMatchups";
+import { handleFocusTrap } from "../helpers/focusTrap";
 import ArrowPrev from "../assets/icons/arrow-prev.svg";
 import ArrowNext from "../assets/icons/arrow-next.svg";
 
@@ -21,29 +22,6 @@ const getSwipeDirection = (start, end) => {
     return diffX < 0 ? "next" : "prev";
   }
   return null;
-};
-
-const handleModalFocusTrap = (e, modalElement) => {
-  if (!modalElement) return;
-  const focusableElements = modalElement.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  const focusable = Array.from(focusableElements).filter(
-    (el) => !el.hasAttribute("disabled") && el.offsetParent !== null
-  );
-
-  if (focusable.length === 0) return;
-
-  const firstElement = focusable[0];
-  const lastElement = focusable[focusable.length - 1];
-
-  if (e.shiftKey && document.activeElement === firstElement) {
-    e.preventDefault();
-    lastElement.focus();
-  } else if (!e.shiftKey && document.activeElement === lastElement) {
-    e.preventDefault();
-    firstElement.focus();
-  }
 };
 
 const ModalHeader = ({
@@ -372,7 +350,7 @@ const Modal = (props) => {
         return;
       }
       if (e.key === "Tab") {
-        handleModalFocusTrap(e, modalRef.current);
+        handleFocusTrap(e, modalRef.current);
       }
     };
 

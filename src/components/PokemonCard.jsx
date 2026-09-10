@@ -36,13 +36,9 @@ const PokemonItem = (props) => {
             <Image path={pokemon.sprites} alt="" className="max-h-full max-w-full object-contain mx-auto" />
           </div>
           <div className="w-full mt-auto text-center">
-            <span
-              role="heading"
-              aria-level="2"
-              className="font-sans text-center text-lg md:text-xl truncate font-bold text-gray-900 leading-snug block"
-            >
+            <h2 className="font-sans text-center text-lg md:text-xl truncate font-bold text-gray-900 leading-snug">
               {pokemon.name}
-            </span>
+            </h2>
             <p className="font-sans text-center text-gray-600 text-sm">
               {isGreater(pokemon.id)}
               {pokemon.id}
@@ -65,13 +61,9 @@ const PokemonItem = (props) => {
               {isGreater(pokemon.id)}
               {pokemon.id}
             </p>
-            <span
-              role="heading"
-              aria-level="2"
-              className="font-sans text-left text-2xl font-bold truncate block"
-            >
+            <h2 className="font-sans text-left text-2xl font-bold truncate">
               {pokemon.name}
-            </span>
+            </h2>
           </div>
           <div className="w-1/4 flex flex-col justify-center px-4 border-r-2 border-gray-100 items-start">
             <p className="text-sm text-gray-500 mb-1">Types:</p>

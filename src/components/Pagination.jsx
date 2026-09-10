@@ -72,7 +72,7 @@ const Pagination = (props) => {
         {page > 1 && page < total - 2 && (
           <button
             type="button"
-            onClick={() => setPage && setPage(page)}
+            onClick={() => setPage?.(page)}
             aria-label={`Page ${page + 1}`}
             aria-current="page"
             className="w-10 h-10 md:w-12 md:h-12 flex justify-center items-center rounded-md border transition duration-150 ease-in focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:outline-none bg-green-600 text-white font-bold border-green-600"

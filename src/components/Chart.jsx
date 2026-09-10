@@ -1,6 +1,24 @@
 import { useMemo } from "react";
-import "chart.js/auto";
 import { Radar } from "react-chartjs-2";
+import { extractStatMetrics, createChartData } from "../helpers/chartData";
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend
+);
 
 const options = {
   responsive: true,
@@ -9,20 +27,19 @@ const options = {
     legend: {
       display: false,
     },
-    tooltip: {
-      callbacks: {
-        label: (context) => ` ${context.dataset.label}: ${context.raw}`,
-      },
-    },
   },
   scales: {
     r: {
-      beginAtZero: true,
+      angleLines: {
+        display: false,
+      },
       suggestedMin: 0,
       suggestedMax: 150,
       ticks: {
-        stepSize: 30,
-        display: false,
+        font: {
+          size: 9,
+        },
+        stepSize: 50,
       },
       pointLabels: {
         font: {
@@ -31,43 +48,18 @@ const options = {
       },
     },
   },
-  elements: {
-    line: {
-      borderWidth: 2,
-    },
-  },
 };
 
 const Chart = (props) => {
   const { stats } = props;
 
-  const { labels, dataValues } = useMemo(() => {
-    if (!stats || stats.length === 0) {
-      return { labels: [], dataValues: [] };
-    }
-    const namesArr = [];
-    const statsArr = [];
-    stats.forEach((element) => {
-      namesArr.push(element.stat.name);
-      statsArr.push(element.base_stat);
-    });
-    return { labels: namesArr, dataValues: statsArr };
-  }, [stats]);
+  const { labels, dataValues } = useMemo(() => extractStatMetrics(stats), [stats]);
 
   const data = useMemo(
-    () => ({
-      labels,
-      datasets: [
-        {
-          label: "Base Stat",
-          data: dataValues,
-          backgroundColor: "rgba(75, 192, 192, 0.2)",
-          borderColor: "rgba(75, 192, 192, 1)",
-          borderWidth: 1.5,
-          pointBackgroundColor: "rgba(75, 192, 192, 1)",
-        },
-      ],
-    }),
+    () =>
+      createChartData(labels, dataValues, {
+        pointBackgroundColor: "rgba(75, 192, 192, 1)",
+      }),
     [labels, dataValues]
   );
 

@@ -382,16 +382,12 @@ describe("Modal Component", () => {
     expect(onNextMock).not.toHaveBeenCalled();
 
     // ArrowRight again -> switch to Type Matchups
-    act(() => {
-      fireEvent.keyDown(evoTab, { key: "ArrowRight" });
-    });
+    fireEvent.keyDown(evoTab, { key: "ArrowRight" });
     expect(matchupsTab).toHaveAttribute("aria-selected", "true");
     expect(onNextMock).not.toHaveBeenCalled();
 
     // ArrowLeft -> back to Evolution Chain
-    act(() => {
-      fireEvent.keyDown(matchupsTab, { key: "ArrowLeft" });
-    });
+    fireEvent.keyDown(matchupsTab, { key: "ArrowLeft" });
     expect(evoTab).toHaveAttribute("aria-selected", "true");
     expect(onPrevMock).not.toHaveBeenCalled();
   });

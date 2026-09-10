@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import "chart.js/auto";
 import { Bar } from "react-chartjs-2";
+import { extractStatMetrics, createChartData } from "../helpers/chartData";
 
 const options = {
   indexAxis: "y",
@@ -48,32 +49,10 @@ const options = {
 const HorizontalBarChart = (props) => {
   const { stats } = props;
 
-  const { labels, dataValues } = useMemo(() => {
-    if (!stats || stats.length === 0) {
-      return { labels: [], dataValues: [] };
-    }
-    const namesArr = [];
-    const statsArr = [];
-    stats.forEach((element) => {
-      namesArr.push(element.stat.name);
-      statsArr.push(element.base_stat);
-    });
-    return { labels: namesArr, dataValues: statsArr };
-  }, [stats]);
+  const { labels, dataValues } = useMemo(() => extractStatMetrics(stats), [stats]);
 
   const data = useMemo(
-    () => ({
-      labels,
-      datasets: [
-        {
-          label: "Base Stat",
-          data: dataValues,
-          backgroundColor: "rgba(75, 192, 192, 0.2)",
-          borderColor: "rgba(75, 192, 192, 1)",
-          borderWidth: 1.5,
-        },
-      ],
-    }),
+    () => createChartData(labels, dataValues),
     [labels, dataValues]
   );
 
