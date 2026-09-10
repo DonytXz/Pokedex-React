@@ -23,7 +23,7 @@ npm run dev
 
 ## Live site
 
-- GitHub Pages: https://donytxz.github.io/Pokedex-React/
+- GitHub Pages: https://donytxz.github.io/pokedex-react/
 - Firebase: https://pokedex-b0ab4.web.app/
 
 Made by Donato Alvarez.
