@@ -354,18 +354,16 @@ describe("Modal Component", () => {
     const onPrevMock = vi.fn();
     const onNextMock = vi.fn();
 
-    await act(async () => {
-      render(
-        <Modal
-          pokemon={mockPokemon}
-          setCloseModal={vi.fn()}
-          onPrevPokemon={onPrevMock}
-          onNextPokemon={onNextMock}
-          hasPrev={true}
-          hasNext={true}
-        />
-      );
-    });
+    render(
+      <Modal
+        pokemon={mockPokemon}
+        setCloseModal={vi.fn()}
+        onPrevPokemon={onPrevMock}
+        onNextPokemon={onNextMock}
+        hasPrev={true}
+        hasNext={true}
+      />
+    );
 
     const statsTab = screen.getByRole("tab", { name: /stats & about/i });
     const evoTab = screen.getByRole("tab", { name: /evolution chain/i });
@@ -375,9 +373,7 @@ describe("Modal Component", () => {
     expect(document.activeElement).toBe(statsTab);
 
     // ArrowRight -> switch to Evolution Chain
-    act(() => {
-      fireEvent.keyDown(statsTab, { key: "ArrowRight" });
-    });
+    fireEvent.keyDown(statsTab, { key: "ArrowRight" });
     expect(evoTab).toHaveAttribute("aria-selected", "true");
     expect(onNextMock).not.toHaveBeenCalled();
 

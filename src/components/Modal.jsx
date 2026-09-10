@@ -321,7 +321,7 @@ const Modal = (props) => {
         return;
       }
 
-      const isTargetInTabList = e.target && e.target.closest && e.target.closest('[role="tablist"]');
+      const isTargetInTabList = e.target?.closest?.('[role="tablist"]');
       if (isTargetInTabList && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
         const tabs = ["stats", "evolution", "matchups"];
         const currentIndex = tabs.indexOf(activeTab);
