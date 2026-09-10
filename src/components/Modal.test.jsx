@@ -349,5 +349,51 @@ describe("Modal Component", () => {
     expect(onPrevMock).toHaveBeenCalledTimes(1);
     expect(onNextMock).toHaveBeenCalledTimes(1);
   });
+
+  it("cycles through tabs using arrow keys when focused on tablist without triggering pokemon navigation", async () => {
+    const onPrevMock = vi.fn();
+    const onNextMock = vi.fn();
+
+    await act(async () => {
+      render(
+        <Modal
+          pokemon={mockPokemon}
+          setCloseModal={vi.fn()}
+          onPrevPokemon={onPrevMock}
+          onNextPokemon={onNextMock}
+          hasPrev={true}
+          hasNext={true}
+        />
+      );
+    });
+
+    const statsTab = screen.getByRole("tab", { name: /stats & about/i });
+    const evoTab = screen.getByRole("tab", { name: /evolution chain/i });
+    const matchupsTab = screen.getByRole("tab", { name: /type matchups/i });
+
+    statsTab.focus();
+    expect(document.activeElement).toBe(statsTab);
+
+    // ArrowRight -> switch to Evolution Chain
+    act(() => {
+      fireEvent.keyDown(statsTab, { key: "ArrowRight" });
+    });
+    expect(evoTab).toHaveAttribute("aria-selected", "true");
+    expect(onNextMock).not.toHaveBeenCalled();
+
+    // ArrowRight again -> switch to Type Matchups
+    act(() => {
+      fireEvent.keyDown(evoTab, { key: "ArrowRight" });
+    });
+    expect(matchupsTab).toHaveAttribute("aria-selected", "true");
+    expect(onNextMock).not.toHaveBeenCalled();
+
+    // ArrowLeft -> back to Evolution Chain
+    act(() => {
+      fireEvent.keyDown(matchupsTab, { key: "ArrowLeft" });
+    });
+    expect(evoTab).toHaveAttribute("aria-selected", "true");
+    expect(onPrevMock).not.toHaveBeenCalled();
+  });
 });
 

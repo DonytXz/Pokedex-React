@@ -6,23 +6,25 @@ const PokemonItem = (props) => {
   const {
     pokemon,
     setcloseMdoal,
+    closeModal = setcloseMdoal,
     setClickedPokemon,
     isList,
+    isGrid = isList !== undefined ? isList : true,
     isFavorite,
     onToggleFavorite,
     isInTeam,
     onToggleTeam,
   } = props;
 
-  //Set the clicket pokemon
+  // Set the clicked pokemon
   const assignValue = () => {
     setClickedPokemon(pokemon.name);
-    if (typeof setcloseMdoal === "function") setcloseMdoal(false);
+    if (typeof closeModal === "function") closeModal(false);
   };
 
   return (
     <div className="relative w-full h-full group">
-      {isList ? (
+      {isGrid ? (
         // Grid View
         <button
           type="button"
@@ -34,9 +36,13 @@ const PokemonItem = (props) => {
             <Image path={pokemon.sprites} alt="" className="max-h-full max-w-full object-contain mx-auto" />
           </div>
           <div className="w-full mt-auto text-center">
-            <h2 className="font-sans text-center text-lg md:text-xl truncate font-bold text-gray-900 leading-snug">
+            <span
+              role="heading"
+              aria-level="2"
+              className="font-sans text-center text-lg md:text-xl truncate font-bold text-gray-900 leading-snug block"
+            >
               {pokemon.name}
-            </h2>
+            </span>
             <p className="font-sans text-center text-gray-600 text-sm">
               {isGreater(pokemon.id)}
               {pokemon.id}
@@ -59,9 +65,13 @@ const PokemonItem = (props) => {
               {isGreater(pokemon.id)}
               {pokemon.id}
             </p>
-            <h2 className="font-sans text-left text-2xl font-bold truncate">
+            <span
+              role="heading"
+              aria-level="2"
+              className="font-sans text-left text-2xl font-bold truncate block"
+            >
               {pokemon.name}
-            </h2>
+            </span>
           </div>
           <div className="w-1/4 flex flex-col justify-center px-4 border-r-2 border-gray-100 items-start">
             <p className="text-sm text-gray-500 mb-1">Types:</p>

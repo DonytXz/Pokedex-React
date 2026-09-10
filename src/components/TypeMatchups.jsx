@@ -86,12 +86,12 @@ const TypeMatchups = ({ types = [] }) => {
       {/* Weaknesses (Takes extra damage) */}
       {(weaknesses4x.length > 0 || weaknesses2x.length > 0) && (
         <section aria-labelledby="heading-weaknesses">
-          <h4
+          <h3
             id="heading-weaknesses"
             className="text-xs font-bold uppercase tracking-wider text-red-600 mb-1.5 flex items-center gap-1"
           >
             <span>⚠️ Weaknesses (Takes More Damage)</span>
-          </h4>
+          </h3>
           <div className="flex flex-wrap gap-2">
             {weaknesses4x.map((t) => (
               <TypeBadge key={t} typeName={t} multiplier="4×" />
@@ -106,12 +106,12 @@ const TypeMatchups = ({ types = [] }) => {
       {/* Resistances (Takes less damage) */}
       {(resistances05x.length > 0 || resistances025x.length > 0) && (
         <section aria-labelledby="heading-resistances">
-          <h4
+          <h3
             id="heading-resistances"
             className="text-xs font-bold uppercase tracking-wider text-green-700 mb-1.5 flex items-center gap-1"
           >
             <span>🛡️ Resistances (Takes Less Damage)</span>
-          </h4>
+          </h3>
           <div className="flex flex-wrap gap-2">
             {resistances05x.map((t) => (
               <TypeBadge key={t} typeName={t} multiplier="½×" />
@@ -126,12 +126,12 @@ const TypeMatchups = ({ types = [] }) => {
       {/* Immunities (Takes 0 damage) */}
       {immunities0x.length > 0 && (
         <section aria-labelledby="heading-immunities">
-          <h4
+          <h3
             id="heading-immunities"
             className="text-xs font-bold uppercase tracking-wider text-purple-700 mb-1.5 flex items-center gap-1"
           >
             <span>✨ Immunities (Takes 0 Damage)</span>
-          </h4>
+          </h3>
           <div className="flex flex-wrap gap-2">
             {immunities0x.map((t) => (
               <TypeBadge key={t} typeName={t} multiplier="0×" />

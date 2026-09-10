@@ -119,18 +119,18 @@ describe("Grid Component", () => {
       expect(setSharedPageValMock).toHaveBeenCalledWith(0);
     });
 
-    // Click UnderLast Page (Page 9)
+    // Click UnderLast Page (Page 9 -> page index 8)
     const underLastBtn = screen.getByRole("button", { name: "Page 9" });
     fireEvent.click(underLastBtn);
     await waitFor(() => {
-      expect(setSharedPageValMock).toHaveBeenCalledWith(9);
+      expect(setSharedPageValMock).toHaveBeenCalledWith(8);
     });
 
-    // Click Last Page (Page 10)
+    // Click Last Page (Page 10 -> page index 9)
     const lastPageBtn = screen.getByRole("button", { name: "Page 10" });
     fireEvent.click(lastPageBtn);
     await waitFor(() => {
-      expect(setSharedPageValMock).toHaveBeenCalledWith(10);
+      expect(setSharedPageValMock).toHaveBeenCalledWith(9);
     });
   });
 

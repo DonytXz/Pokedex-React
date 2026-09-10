@@ -139,37 +139,6 @@ export const calculateBaseStatTotal = (pokemon) => {
   return pokemon.stats.reduce((total, s) => total + (s.base_stat || 0), 0);
 };
 
-export const fetchMostPowerfulPokemons = async (pokemonList = [], limit = 10) => {
-  try {
-    if (!Array.isArray(pokemonList) || pokemonList.length === 0) {
-      return [];
-    }
-
-    const promises = pokemonList.map(async (item) => {
-      const target = typeof item === "string" ? item : item?.name || item?.url;
-      if (!target) return null;
-      if (typeof target === "string" && target.startsWith("http")) {
-        return fetchPokemonData(target);
-      }
-      return fetchPokemon(target);
-    });
-
-    const results = await Promise.all(promises);
-    const validPokemons = results.filter(Boolean);
-
-    const sorted = validPokemons
-      .map((p) => ({
-        ...p,
-        totalStats: calculateBaseStatTotal(p),
-      }))
-      .sort((a, b) => b.totalStats - a.totalStats);
-
-    return limit ? sorted.slice(0, limit) : sorted;
-  } catch (err) {
-    console.error(err);
-  }
-};
-
 export const fetchEvolutionChain = async (url) => {
   if (!url) return null;
   return fetchPokemonData(url);

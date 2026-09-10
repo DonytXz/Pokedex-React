@@ -37,4 +37,53 @@ describe("TypeMatchups Component", () => {
       expect(screen.getByText("No type matchup data available.")).toBeInTheDocument();
     });
   });
+
+  it("renders 4x weaknesses, 0.25x resistances, and 0x immunities for dual types", async () => {
+    const bugData = {
+      name: "bug",
+      damage_relations: {
+        double_damage_from: [{ name: "fire" }, { name: "rock" }],
+        half_damage_from: [{ name: "grass" }, { name: "fighting" }],
+        no_damage_from: [],
+      },
+    };
+    const flyingData = {
+      name: "flying",
+      damage_relations: {
+        double_damage_from: [{ name: "electric" }, { name: "rock" }],
+        half_damage_from: [{ name: "grass" }, { name: "fighting" }],
+        no_damage_from: [{ name: "ground" }],
+      },
+    };
+
+    vi.spyOn(pokemonService, "fetchTypeData").mockImplementation(async (type) => {
+      return type === "bug" ? bugData : flyingData;
+    });
+
+    render(
+      <TypeMatchups
+        types={[{ type: { name: "bug" } }, { type: { name: "flying" } }]}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/4×/)).toBeInTheDocument();
+      expect(screen.getAllByText(/¼×/).length).toBeGreaterThan(0);
+      expect(screen.getByText(/0×/)).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/Immunities/i)).toBeInTheDocument();
+  });
+
+  it("handles fetchTypeData error gracefully", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(pokemonService, "fetchTypeData").mockRejectedValue(new Error("Network failure"));
+
+    render(<TypeMatchups types={[{ type: { name: "fire" } }]} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("No type matchup data available.")).toBeInTheDocument();
+    });
+    expect(consoleSpy).toHaveBeenCalled();
+  });
 });

@@ -64,4 +64,80 @@ describe("TeamBuilder Component", () => {
 
     expect(onCloseMock).toHaveBeenCalled();
   });
+
+  it("closes when Escape key is pressed", () => {
+    const onCloseMock = vi.fn();
+    render(
+      <TeamBuilder
+        team={mockTeam}
+        isOpen={true}
+        onClose={onCloseMock}
+      />
+    );
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(onCloseMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("triggers onClearTeam when clear team button is clicked", () => {
+    const onClearMock = vi.fn();
+    render(
+      <TeamBuilder
+        team={mockTeam}
+        isOpen={true}
+        onClose={vi.fn()}
+        onClearTeam={onClearMock}
+      />
+    );
+
+    const clearBtn = screen.getByRole("button", { name: /clear all team members/i });
+    fireEvent.click(clearBtn);
+    expect(onClearMock).toHaveBeenCalled();
+  });
+
+  it("triggers onSelectPokemon and onClose when a team member is selected", () => {
+    const onSelectMock = vi.fn();
+    const onCloseMock = vi.fn();
+    render(
+      <TeamBuilder
+        team={mockTeam}
+        isOpen={true}
+        onClose={onCloseMock}
+        onSelectPokemon={onSelectMock}
+      />
+    );
+
+    const selectBtn = screen.getByRole("button", { name: /view pikachu details/i });
+    fireEvent.click(selectBtn);
+
+    expect(onCloseMock).toHaveBeenCalled();
+    expect(onSelectMock).toHaveBeenCalledWith("pikachu");
+  });
+
+  it("traps focus inside dialog on Tab and Shift+Tab", () => {
+    render(
+      <TeamBuilder
+        team={mockTeam}
+        isOpen={true}
+        onClose={vi.fn()}
+      />
+    );
+
+    const dialog = screen.getByRole("dialog");
+    const focusable = Array.from(dialog.querySelectorAll("button"));
+    const firstBtn = focusable[0];
+    const lastBtn = focusable[focusable.length - 1];
+
+    // Focus first element and press Shift+Tab -> should wrap to last element
+    firstBtn.focus();
+    expect(document.activeElement).toBe(firstBtn);
+    fireEvent.keyDown(window, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(lastBtn);
+
+    // Focus last element and press Tab -> should wrap to first element
+    lastBtn.focus();
+    expect(document.activeElement).toBe(lastBtn);
+    fireEvent.keyDown(window, { key: "Tab", shiftKey: false });
+    expect(document.activeElement).toBe(firstBtn);
+  });
 });

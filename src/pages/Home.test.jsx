@@ -432,4 +432,103 @@ describe("Home Page Component", () => {
       expect(within(dialog).getByRole("heading", { name: "charmander" })).toBeInTheDocument();
     });
   });
+
+  it("prevents adding more than 6 pokémon to the team and warns the user", async () => {
+    const alertSpy = vi.fn();
+    window.alert = alertSpy;
+
+    // Seed localStorage with 6 team members
+    const initialTeam = [
+      { id: 1, name: "bulbasaur" },
+      { id: 2, name: "ivysaur" },
+      { id: 3, name: "venusaur" },
+      { id: 4, name: "charmander" },
+      { id: 5, name: "charmeleon" },
+      { id: 6, name: "charizard" },
+    ];
+    window.localStorage.setItem("pokedex:team", JSON.stringify(initialTeam));
+
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "bulbasaur" })).toBeInTheDocument();
+    });
+
+    // Try to add squirtle (7th member)
+    const addSquirtleBtn = screen.getByRole("button", { name: /add squirtle to battle team/i });
+    fireEvent.click(addSquirtleBtn);
+
+    expect(alertSpy).toHaveBeenCalledWith("Battle team is full! Maximum 6 Pokémon allowed.");
+    expect(screen.getByText("Battle team is full! Maximum 6 Pokémon allowed.")).toBeInTheDocument();
+  });
+
+  it("clears all team members when onClearTeam is called inside team builder dialog", async () => {
+    const initialTeam = [
+      { id: 1, name: "bulbasaur" },
+      { id: 4, name: "charmander" },
+    ];
+    window.localStorage.setItem("pokedex:team", JSON.stringify(initialTeam));
+
+    render(<Home />);
+
+    const teamLauncher = screen.getByRole("button", { name: /open battle team \(2 of 6 members\)/i });
+    fireEvent.click(teamLauncher);
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog", { name: /battle team builder/i })).toBeInTheDocument();
+    });
+
+    const clearBtn = screen.getByRole("button", { name: /clear all team members/i });
+    fireEvent.click(clearBtn);
+
+    expect(screen.getByText(/0 \/ 6 Members/i)).toBeInTheDocument();
+  });
+
+  it("opens pokemon details when clicking a member in team builder", async () => {
+    const initialTeam = [
+      { id: 1, name: "bulbasaur" },
+    ];
+    window.localStorage.setItem("pokedex:team", JSON.stringify(initialTeam));
+
+    render(<Home />);
+
+    const teamLauncher = screen.getByRole("button", { name: /open battle team \(1 of 6 members\)/i });
+    fireEvent.click(teamLauncher);
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog", { name: /battle team builder/i })).toBeInTheDocument();
+    });
+
+    // Click member card in team builder dialog
+    const memberCard = screen.getByRole("button", { name: "View bulbasaur details" });
+    fireEvent.click(memberCard);
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog", { name: /bulbasaur/i })).toBeInTheDocument();
+    });
+  });
+
+  it("resets to grid view on small screen window resize when list view was active", async () => {
+    render(<Home />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "bulbasaur" })).toBeInTheDocument();
+    });
+
+    // Switch to list view (isList becomes false)
+    const toggleBtn = screen.getByRole("button", { name: /switch to list view/i });
+    fireEvent.click(toggleBtn);
+
+    expect(screen.getByRole("button", { name: /switch to grid view/i })).toBeInTheDocument();
+
+    // Trigger window resize to small mobile width
+    window.innerWidth = 500;
+    fireEvent(window, new Event("resize"));
+
+    // Should automatically reset back to grid view
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /switch to list view/i })).toBeInTheDocument();
+    });
+  });
 });
+

@@ -14,6 +14,28 @@ const TeamBuilder = ({
   const closeButtonRef = useRef(null);
   const modalRef = useRef(null);
 
+  const handleFocusTrap = (e) => {
+    if (!modalRef.current) return;
+    const focusableElements = modalRef.current.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const focusable = Array.from(focusableElements).filter(
+      (el) => !el.hasAttribute("disabled") && el.offsetParent !== null
+    );
+    if (focusable.length === 0) return;
+
+    const firstElement = focusable[0];
+    const lastElement = focusable[focusable.length - 1];
+
+    if (e.shiftKey && document.activeElement === firstElement) {
+      e.preventDefault();
+      lastElement.focus();
+    } else if (!e.shiftKey && document.activeElement === lastElement) {
+      e.preventDefault();
+      firstElement.focus();
+    }
+  };
+
   useEffect(() => {
     if (isOpen && closeButtonRef.current) {
       closeButtonRef.current.focus();
@@ -23,6 +45,8 @@ const TeamBuilder = ({
       if (e.key === "Escape" && isOpen) {
         e.preventDefault();
         onClose();
+      } else if (e.key === "Tab" && isOpen) {
+        handleFocusTrap(e);
       }
     };
 
@@ -119,7 +143,7 @@ const TeamBuilder = ({
                     type="button"
                     onClick={() => onRemoveMember && onRemoveMember(member.id || member.name)}
                     aria-label={`Remove ${member.name} from team`}
-                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-600 flex items-center justify-center text-xs font-bold"
+                    className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-gray-100 hover:bg-red-100 text-gray-600 hover:text-red-600 flex items-center justify-center text-xs font-bold focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none transition shadow-sm"
                   >
                     ✕
                   </button>
@@ -155,13 +179,13 @@ const TeamBuilder = ({
             return (
               <div
                 key={`empty-${idx}`}
-                className="border-2 border-dashed border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center min-h-[140px] text-gray-400 bg-gray-50"
+                className="border-2 border-dashed border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center min-h-[140px] text-gray-600 bg-gray-50"
               >
                 <span className="text-2xl mb-1">⚪</span>
-                <span className="text-xs font-semibold text-gray-500">
+                <span className="text-xs font-semibold text-gray-700">
                   Slot {idx + 1}
                 </span>
-                <span className="text-[10px] text-gray-400 text-center mt-0.5">
+                <span className="text-xs font-medium text-gray-600 text-center mt-0.5">
                   Empty
                 </span>
               </div>
