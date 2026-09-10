@@ -6,23 +6,25 @@ const PokemonItem = (props) => {
   const {
     pokemon,
     setcloseMdoal,
+    closeModal = setcloseMdoal,
     setClickedPokemon,
     isList,
+    isGrid = isList !== undefined ? isList : true,
     isFavorite,
     onToggleFavorite,
     isInTeam,
     onToggleTeam,
   } = props;
 
-  //Set the clicket pokemon
+  // Set the clicked pokemon
   const assignValue = () => {
     setClickedPokemon(pokemon.name);
-    if (typeof setcloseMdoal === "function") setcloseMdoal(false);
+    if (typeof closeModal === "function") closeModal(false);
   };
 
   return (
     <div className="relative w-full h-full group">
-      {isList ? (
+      {isGrid ? (
         // Grid View
         <button
           type="button"

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import "chart.js/auto";
 import { Bar } from "react-chartjs-2";
+import { extractStatMetrics, createChartData } from "../helpers/chartData";
 
 const options = {
   indexAxis: "y",
@@ -48,34 +49,12 @@ const options = {
 const HorizontalBarChart = (props) => {
   const { stats } = props;
 
-  const [pokemonStats, setPokemonStats] = useState([]);
-  const [names, setNames] = useState([]);
+  const { labels, dataValues } = useMemo(() => extractStatMetrics(stats), [stats]);
 
-  const data = {
-    labels: names,
-    datasets: [
-      {
-        label: "Base Stat",
-        data: pokemonStats,
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 1.5,
-      },
-    ],
-  };
-
-  useEffect(() => {
-    if (stats && stats.length > 0) {
-      const namesArr = [];
-      const statsArr = [];
-      stats.forEach((element) => {
-        namesArr.push(element.stat.name);
-        statsArr.push(element.base_stat);
-      });
-      setPokemonStats(statsArr);
-      setNames(namesArr);
-    }
-  }, [stats]);
+  const data = useMemo(
+    () => createChartData(labels, dataValues),
+    [labels, dataValues]
+  );
 
   return (
     <div className="w-full h-full relative">

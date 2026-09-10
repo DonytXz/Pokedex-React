@@ -1,14 +1,9 @@
-import { useState, useEffect } from "react";
 import HorizontalBarChart from "./HorizontalBarChart";
 import Chart from "./Chart";
 
-const Stat = (props) => {
+const Stats = (props) => {
   const { pokemon, clickedBtn } = props;
-  const [stats, setStats] = useState([]);
-
-  useEffect(() => {
-    setStats(pokemon?.stats || []);
-  }, [pokemon?.stats]);
+  const stats = pokemon?.stats || [];
 
   return (
     <div className="w-full h-full">
@@ -36,4 +31,4 @@ const Stat = (props) => {
   );
 };
 
-export default Stat;
+export default Stats;

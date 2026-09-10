@@ -10,6 +10,7 @@ import PokeballLoader from "./loaders/PokeballLoader";
 import AudioCry from "./AudioCry";
 import EvolutionChain from "./EvolutionChain";
 import TypeMatchups from "./TypeMatchups";
+import { handleFocusTrap } from "../helpers/focusTrap";
 import ArrowPrev from "../assets/icons/arrow-prev.svg";
 import ArrowNext from "../assets/icons/arrow-next.svg";
 
@@ -21,29 +22,6 @@ const getSwipeDirection = (start, end) => {
     return diffX < 0 ? "next" : "prev";
   }
   return null;
-};
-
-const handleModalFocusTrap = (e, modalElement) => {
-  if (!modalElement) return;
-  const focusableElements = modalElement.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  const focusable = Array.from(focusableElements).filter(
-    (el) => !el.hasAttribute("disabled") && el.offsetParent !== null
-  );
-
-  if (focusable.length === 0) return;
-
-  const firstElement = focusable[0];
-  const lastElement = focusable[focusable.length - 1];
-
-  if (e.shiftKey && document.activeElement === firstElement) {
-    e.preventDefault();
-    lastElement.focus();
-  } else if (!e.shiftKey && document.activeElement === lastElement) {
-    e.preventDefault();
-    firstElement.focus();
-  }
 };
 
 const ModalHeader = ({
@@ -253,6 +231,7 @@ const ModalTabPanels = ({
 const Modal = (props) => {
   const {
     setCloseModal,
+    closeModal = setCloseModal,
     pokemon,
     onSelectPokemon,
     isFavorite,
@@ -312,7 +291,8 @@ const Modal = (props) => {
   };
 
   const handleClose = () => {
-    if (typeof setCloseModal === "function") setCloseModal(true);
+    const fn = closeModal || setCloseModal;
+    if (typeof fn === "function") fn(true);
   };
 
   useEffect(() => {
@@ -340,6 +320,25 @@ const Modal = (props) => {
         handleClose();
         return;
       }
+
+      const isTargetInTabList = e.target && e.target.closest && e.target.closest('[role="tablist"]');
+      if (isTargetInTabList && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+        const tabs = ["stats", "evolution", "matchups"];
+        const currentIndex = tabs.indexOf(activeTab);
+        if (currentIndex !== -1) {
+          e.preventDefault();
+          const nextIndex =
+            e.key === "ArrowRight"
+              ? (currentIndex + 1) % tabs.length
+              : (currentIndex - 1 + tabs.length) % tabs.length;
+          const nextTab = tabs[nextIndex];
+          setActiveTab(nextTab);
+          const nextTabEl = modalRef.current?.querySelector(`#tab-${nextTab}`);
+          nextTabEl?.focus();
+        }
+        return;
+      }
+
       if (e.key === "ArrowLeft" && hasPrev && typeof onPrevPokemon === "function") {
         e.preventDefault();
         onPrevPokemon();
@@ -351,7 +350,7 @@ const Modal = (props) => {
         return;
       }
       if (e.key === "Tab") {
-        handleModalFocusTrap(e, modalRef.current);
+        handleFocusTrap(e, modalRef.current);
       }
     };
 
@@ -359,7 +358,7 @@ const Modal = (props) => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [pokemon, hasPrev, hasNext, onPrevPokemon, onNextPokemon]);
+  }, [pokemon, hasPrev, hasNext, onPrevPokemon, onNextPokemon, activeTab]);
 
   const bst = calculateBaseStatTotal(pokemon);
   const cryUrl = pokemon?.cries?.latest || pokemon?.cries?.legacy;
@@ -440,6 +439,7 @@ const Modal = (props) => {
             id="tab-stats"
             aria-controls="panel-stats"
             aria-selected={activeTab === "stats"}
+            tabIndex={activeTab === "stats" ? 0 : -1}
             onClick={() => setActiveTab("stats")}
             className={`py-2 px-4 text-xs sm:text-sm font-bold border-b-2 transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 ${
               activeTab === "stats"
@@ -454,6 +454,7 @@ const Modal = (props) => {
             id="tab-evolution"
             aria-controls="panel-evolution"
             aria-selected={activeTab === "evolution"}
+            tabIndex={activeTab === "evolution" ? 0 : -1}
             onClick={() => setActiveTab("evolution")}
             className={`py-2 px-4 text-xs sm:text-sm font-bold border-b-2 transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 ${
               activeTab === "evolution"
@@ -468,6 +469,7 @@ const Modal = (props) => {
             id="tab-matchups"
             aria-controls="panel-matchups"
             aria-selected={activeTab === "matchups"}
+            tabIndex={activeTab === "matchups" ? 0 : -1}
             onClick={() => setActiveTab("matchups")}
             className={`py-2 px-4 text-xs sm:text-sm font-bold border-b-2 transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 ${
               activeTab === "matchups"

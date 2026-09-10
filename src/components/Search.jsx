@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import SearchImage from "../assets/icons/search.svg";
 
-const search = (props) => {
+const Search = (props) => {
   const { getPokemon, setSearched } = props;
   const [searchValue, setSearchValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -90,4 +90,4 @@ const search = (props) => {
   );
 };
 
-export default search;
+export default Search;

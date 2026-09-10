@@ -13,7 +13,8 @@ const Grid = (props) => {
     searchLoading,
     setPokemonModalVal,
     setSharedPageVal,
-    isList,
+    isList: propIsList,
+    isGrid: propIsGrid,
     favorites = [],
     onToggleFavorite,
     team = [],
@@ -22,6 +23,14 @@ const Grid = (props) => {
     page: propPage,
     setPage: propSetPage,
   } = props;
+  let isGrid = true;
+  if (propIsGrid !== undefined) {
+    isGrid = propIsGrid;
+  } else if (propIsList !== undefined) {
+    isGrid = propIsList;
+  }
+  const isList = isGrid;
+  const closeModalHandler = props.closeModal || setcloseMdoal;
   const [pokemons, setPokemons] = useState([]);
   const [clickedPokemon, setClickedPokemon] = useState();
   const [internalPage, setInternalPage] = useState(0);
@@ -31,12 +40,12 @@ const Grid = (props) => {
   const [loading, setLoading] = useState(true);
 
   // Pagination handlers
-  const previusPage = () => setPage(Math.max(page - 1, 0));
-  const nextPage = () => setPage(Math.min(page + 1, total - 1));
-  const firstPage = () => setPage(Math.min(0, total));
-  const secondPage = () => setPage(Math.min(1, total - 1));
-  const underLatsPage = () => setPage(Math.min(total - 1));
-  const lastPage = () => setPage(Math.min(total));
+  const previousPage = () => setPage(Math.max(page - 1, 0));
+  const nextPage = () => setPage(Math.min(page + 1, Math.max(0, total - 1)));
+  const firstPage = () => setPage(0);
+  const secondPage = () => setPage(Math.min(1, Math.max(0, total - 1)));
+  const penultimatePage = () => setPage(Math.max(0, total - 2));
+  const lastPage = () => setPage(Math.max(0, total - 1));
 
   // Call the service to get all pokemons
   const getPokemons = async () => {
@@ -46,7 +55,7 @@ const Grid = (props) => {
       const promises = data.results.map(async (p) => fetchPokemonData(p.url));
       const results = await Promise.all(promises);
       setPokemons(results);
-      const totalPages = Math.floor(data.count / 18);
+      const totalPages = Math.ceil(data.count / 18);
       setTotal(totalPages);
       if (typeof onPokemonsLoaded === "function") {
         onPokemonsLoaded(results, totalPages);
@@ -71,7 +80,9 @@ const Grid = (props) => {
   useEffect(() => {
     if (!searched) {
       getPokemons();
-      setSharedPageVal(page);
+      if (typeof setSharedPageVal === "function") {
+        setSharedPageVal(page);
+      }
     }
   }, [page, searched, setSharedPageVal]);
 
@@ -119,8 +130,10 @@ const Grid = (props) => {
 
       return pokemon.map((pokemonItem, index) => (
         <PokemonCard
+          isGrid={isGrid}
           isList={isList}
-          setcloseMdoal={setcloseMdoal}
+          closeModal={closeModalHandler}
+          setcloseMdoal={closeModalHandler}
           setClickedPokemon={setClickedPokemon}
           key={pokemonItem.name || index}
           pokemon={pokemonItem}
@@ -135,8 +148,10 @@ const Grid = (props) => {
     if (pokemons.length > 0) {
       return pokemons.map((pokemonItem, index) => (
         <PokemonCard
+          isGrid={isGrid}
           isList={isList}
-          setcloseMdoal={setcloseMdoal}
+          closeModal={closeModalHandler}
+          setcloseMdoal={closeModalHandler}
           key={pokemonItem.name || index}
           pokemon={pokemonItem}
           setClickedPokemon={setClickedPokemon}
@@ -159,7 +174,7 @@ const Grid = (props) => {
     >
       <div
         className={`w-3/4 h-3/4 grid justify-items-center mx-auto mb-4 ${
-          isList
+          isGrid
             ? "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 md:gap-4 lg:gap-6"
             : "grid-flow-row gap-y-4"
         }`}
@@ -170,14 +185,16 @@ const Grid = (props) => {
         {!searched && !loading ? (
           <Pagination
             searched={searched}
-            onLeftClick={previusPage}
+            onLeftClick={previousPage}
             onRightClick={nextPage}
             firstPage={firstPage}
             secondPage={secondPage}
-            underLatsPage={underLatsPage}
+            underLatsPage={penultimatePage}
+            penultimatePage={penultimatePage}
             lastPage={lastPage}
             page={page}
             total={total}
+            setPage={setPage}
           />
         ) : null}
       </div>

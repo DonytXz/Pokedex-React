@@ -39,7 +39,6 @@ const setStoredItem = (key, data) => {
 const Home = () => {
   const [pokemon, setPokemon] = useState([]);
   const [pokemonDetails, setPokemonDetails] = useState(null);
-  const [, setSharedPageVal] = useState();
   const [closeModal, setCloseModal] = useState(true);
   const [pokemonModalVal, setPokemonModalVal] = useState();
   const [searched, setSearched] = useState(false);
@@ -136,7 +135,10 @@ const Home = () => {
       }
 
       if (prev.length >= 6) {
-        alert("Battle team is full! Maximum 6 Pokémon allowed.");
+        setSearchStatus("Battle team is full! Maximum 6 Pokémon allowed.");
+        if (typeof window !== "undefined" && typeof window.alert === "function") {
+          window.alert("Battle team is full! Maximum 6 Pokémon allowed.");
+        }
         return prev;
       }
 
@@ -446,7 +448,14 @@ const Home = () => {
       <TeamBuilder
         team={team}
         isOpen={isTeamOpen}
-        onClose={() => setIsTeamOpen(false)}
+        onClose={() => {
+          setIsTeamOpen(false);
+          if (lastActiveElementRef.current) {
+            setTimeout(() => {
+              lastActiveElementRef.current?.focus();
+            }, 50);
+          }
+        }}
         onRemoveMember={(idOrName) => {
           setTeam((prev) => {
             const next = prev.filter(
@@ -474,8 +483,8 @@ const Home = () => {
           <div className="relative w-full h-full pointer-events-none">
             <Modal
               setCloseModal={handleCloseModal}
+              closeModal={handleCloseModal}
               pokemon={pokemonDetails}
-              closeMdoal={closeModal}
               onSelectPokemon={handleOpenModal}
               isFavorite={isFav(pokemonDetails)}
               onToggleFavorite={handleToggleFavorite}
@@ -504,10 +513,13 @@ const Home = () => {
 
           <div className="w-3/4 flex flex-col mx-auto mb-4 gap-2.5">
             <div className="w-full flex flex-row items-stretch gap-2">
-              <Butons isList={isList} setIslist={setIslist} />
+              <Butons isGrid={isList} isList={isList} setIslist={setIslist} />
               <button
                 type="button"
-                onClick={() => setIsTeamOpen(true)}
+                onClick={() => {
+                  lastActiveElementRef.current = document.activeElement;
+                  setIsTeamOpen(true);
+                }}
                 aria-label={`Open Battle Team (${team.length} of 6 members)`}
                 title="View and manage your 6-member Pokémon team"
                 className="self-stretch px-3 md:px-4 bg-white border border-gray-300 hover:border-gray-400 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs md:text-sm text-gray-800 shadow-sm focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:outline-none transition hover:bg-gray-50"
@@ -535,11 +547,12 @@ const Home = () => {
 
           <main id="main-content" tabIndex="-1" className="w-full focus:outline-none">
             <Grid
+              isGrid={isList}
               isList={isList}
-              setSharedPageVal={setSharedPageVal}
               setPokemonModalVal={handleOpenModal}
               searched={searched}
               searchLoading={searchLoading}
+              closeModal={handleCloseModal}
               setcloseMdoal={handleCloseModal}
               pokemon={pokemon}
               favorites={favorites}

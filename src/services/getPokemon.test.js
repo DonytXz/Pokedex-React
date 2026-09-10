@@ -5,7 +5,6 @@ import {
   fetchAllPokemonNames,
   fetchPokemonData,
   calculateBaseStatTotal,
-  fetchMostPowerfulPokemons,
   clearCache,
   fetchEvolutionChain,
   fetchTypeData,
@@ -179,86 +178,61 @@ describe("getPokemon service", () => {
     });
   });
 
-  describe("fetchMostPowerfulPokemons", () => {
-    it("sorts pokemon list by total base stats descending and limits output", async () => {
-      const mewtwoData = {
-        id: 150,
-        name: "mewtwo",
-        stats: [
-          { base_stat: 106 },
-          { base_stat: 110 },
-          { base_stat: 90 },
-          { base_stat: 154 },
-          { base_stat: 90 },
-          { base_stat: 130 },
-        ], // 680
+  describe("calculateTypeMatchups & fetchTypePokemons edge cases", () => {
+    it("handles 4x weaknesses, 0.25x resistances, and 0x immunities", () => {
+      // Scyther (Bug/Flying) vs Rock: 2 * 2 = 4x weakness
+      // Steel (Ghost/Steel) vs Normal: no_damage_from Normal = 0x
+      const ghostType = {
+        name: "ghost",
+        damage_relations: {
+          double_damage_from: [{ name: "ghost" }, { name: "dark" }],
+          half_damage_from: [{ name: "poison" }, { name: "bug" }],
+          no_damage_from: [{ name: "normal" }, { name: "fighting" }],
+        },
+      };
+      const bugType = {
+        name: "bug",
+        damage_relations: {
+          double_damage_from: [{ name: "fire" }, { name: "flying" }, { name: "rock" }],
+          half_damage_from: [{ name: "grass" }, { name: "fighting" }, { name: "ground" }],
+          no_damage_from: [],
+        },
+      };
+      const flyingType = {
+        name: "flying",
+        damage_relations: {
+          double_damage_from: [{ name: "electric" }, { name: "ice" }, { name: "rock" }],
+          half_damage_from: [{ name: "grass" }, { name: "fighting" }, { name: "bug" }],
+          no_damage_from: [{ name: "ground" }],
+        },
       };
 
-      const pikachuData = {
-        id: 25,
-        name: "pikachu",
-        stats: [
-          { base_stat: 35 },
-          { base_stat: 55 },
-          { base_stat: 40 },
-          { base_stat: 50 },
-          { base_stat: 50 },
-          { base_stat: 90 },
-        ], // 320
-      };
-
-      const rayquazaData = {
-        id: 384,
-        name: "rayquaza",
-        stats: [
-          { base_stat: 105 },
-          { base_stat: 150 },
-          { base_stat: 90 },
-          { base_stat: 150 },
-          { base_stat: 90 },
-          { base_stat: 95 },
-        ], // 680
-      };
-
-      global.fetch = vi.fn().mockImplementation((url) => {
-        if (url.includes("mewtwo")) {
-          return Promise.resolve({ json: () => Promise.resolve(mewtwoData) });
-        }
-        if (url.includes("pikachu")) {
-          return Promise.resolve({ json: () => Promise.resolve(pikachuData) });
-        }
-        if (url.includes("rayquaza") || url.includes("384")) {
-          return Promise.resolve({ json: () => Promise.resolve(rayquazaData) });
-        }
-        return Promise.resolve({ json: () => Promise.resolve(null) });
-      });
-
-      const result = await fetchMostPowerfulPokemons(
-        [
-          "pikachu",
-          { name: "mewtwo" },
-          { url: "https://pokeapi.co/api/v2/pokemon/384/" },
-          null,
-        ],
-        2
+      const ghostMatchups = calculateTypeMatchups(
+        [{ type: { name: "ghost" } }],
+        [ghostType]
       );
+      expect(ghostMatchups.immunities0x).toContain("normal");
+      expect(ghostMatchups.immunities0x).toContain("fighting");
 
-      expect(result).toHaveLength(2);
-      expect(result[0].totalStats).toBe(680);
-      expect(result[1].totalStats).toBe(680);
+      const bugFlyingMatchups = calculateTypeMatchups(
+        [{ type: { name: "bug" } }, { type: { name: "flying" } }],
+        [bugType, flyingType]
+      );
+      // Rock is 2 * 2 = 4x
+      expect(bugFlyingMatchups.weaknesses4x).toContain("rock");
+      // Grass is 0.5 * 0.5 = 0.25x
+      expect(bugFlyingMatchups.resistances025x).toContain("grass");
+      // Ground is 0.5 * 0 = 0x
+      expect(bugFlyingMatchups.immunities0x).toContain("ground");
     });
 
-    it("returns empty array when pokemonList is empty or invalid", async () => {
-      expect(await fetchMostPowerfulPokemons([])).toEqual([]);
-      expect(await fetchMostPowerfulPokemons(null)).toEqual([]);
-    });
+    it("fetchTypePokemons handles fetch error and returns empty array", async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error("Type fetch failure"));
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    it("handles fetch errors gracefully and returns empty array", async () => {
-      global.fetch = vi.fn().mockRejectedValue(new Error("Network failure"));
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
-      const result = await fetchMostPowerfulPokemons(["mewtwo"]);
+      const result = await fetchTypePokemons("dragon");
       expect(result).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalled();
     });
   });
 

@@ -10,6 +10,7 @@ const AudioCry = ({ cryUrl, pokemonName }) => {
         audioRef.current.pause();
         audioRef.current = null;
       }
+      setIsPlaying(false);
     };
   }, [cryUrl]);
 
